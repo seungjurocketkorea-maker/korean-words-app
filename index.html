@@ -101,7 +101,7 @@
             </div>
 
             <div id="front-examples-area" class="w-full hidden flex-col items-center mb-8">
-              <p class="text-xs text-[#cb4b16] font-medium mb-3 uppercase tracking-widest">💡 예문을 보고 뜻을 유추해보세요</p>
+              <p class="text-sm text-[#cb4b16] font-medium mb-3 uppercase tracking-widest">💡 예문을 보고 뜻을 유추해보세요</p>
               <ul id="word-front-examples" class="text-sm md:text-base text-left w-full text-stone-700 bg-[#eee8d5] border border-[#93a1a1] p-5 rounded-2xl space-y-3 break-keep leading-relaxed list-none">
               </ul>
             </div>
@@ -116,7 +116,12 @@
           </div>
 
           <!-- Back Side -->
-          <div class="col-start-1 row-start-1 rotate-y-180 backface-hidden h-full bg-[#fdf6e3] solid-panel rounded-[2rem] flex flex-col p-8 border-2 border-[#93a1a1]">
+          <div class="col-start-1 row-start-1 rotate-y-180 backface-hidden h-full bg-[#fdf6e3] solid-panel rounded-[2rem] flex flex-col p-8 border-2 border-[#93a1a1] relative">
+            
+            <button onclick="retryFetchContext()" class="absolute top-6 right-6 text-stone-400 hover:text-[#859900] transition-colors p-2 rounded-full hover:bg-[#eee8d5]" title="AI 답변 재요청 (기존 데이터 무시)">
+               <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
+            </button>
+
             <div class="flex flex-col h-full space-y-5">
               
               <!-- AI Judgment Feedback -->
@@ -129,24 +134,24 @@
               </div>
 
               <div class="bg-[#fdf6e3] rounded-2xl p-5 border border-[#eee8d5]">
-                <p class="text-xs text-[#859900] font-medium mb-2 uppercase tracking-widest pl-1">사전적 의미</p>
+                <p class="text-sm text-[#859900] font-medium mb-2 uppercase tracking-widest pl-1">사전적 의미</p>
                 <p id="word-back-meaning-basic" class="text-base font-medium text-stone-800 break-keep leading-snug pl-1"></p>
               </div>
 
               <div class="bg-[#fdf6e3] rounded-2xl p-5 border border-[#eee8d5]">
-                <p class="text-xs text-[#859900] font-medium mb-2 uppercase tracking-widest pl-1">상세 해설 & 뉘앙스</p>
+                <p class="text-sm text-[#859900] font-medium mb-2 uppercase tracking-widest pl-1">상세 해설 & 뉘앙스</p>
                 <p id="word-back-meaning-detailed" class="text-sm font-medium text-stone-700 leading-loose break-keep pl-1"></p>
               </div>
               
               <div id="hanja-breakdown-area" class="bg-[#859900]/10 rounded-2xl p-5 border border-[#859900]/30 hidden mt-2">
-                <p class="text-xs text-[#586e75] font-medium mb-2 uppercase tracking-widest pl-1">한자 분해 및 어원</p>
+                <p class="text-sm text-[#586e75] font-medium mb-2 uppercase tracking-widest pl-1">한자 분해 및 어원</p>
                 <p id="word-back-hanja-breakdown" class="text-sm font-medium text-[#414A35] leading-loose break-keep pl-1"></p>
               </div>
 
               <!-- User Note Area (Back Side) -->
               <div class="bg-[#eee8d5] rounded-2xl p-5 border border-[#93a1a1] mt-2 flex flex-col">
                 <div class="flex items-center justify-between mb-3">
-                  <p class="text-xs text-[#cb4b16] font-medium uppercase tracking-widest pl-1">✏️ 나만의 비밀 노트</p>
+                  <p class="text-sm text-[#cb4b16] font-medium uppercase tracking-widest pl-1">✏️ 나만의 비밀 노트</p>
                   <button id="btn-save-note" class="text-xs font-medium bg-[#cb4b16] text-[#fdf6e3] px-3 py-1.5 rounded-lg hover:bg-[#dc322f] transition-colors cursor-pointer" onclick="saveUserNote()">저장하기</button>
                 </div>
                 <textarea id="back-user-note-input" class="w-full bg-[#fdf6e3] border border-[#93a1a1] rounded-xl p-3 text-stone-800 text-sm focus:outline-none focus:border-[#859900] transition-colors resize-none h-20 placeholder-stone-400" placeholder="이 단어의 정확한 뜻/뉘앙스는 무엇일까요? 서술해 보세요."></textarea>
@@ -218,32 +223,32 @@
         <div id="modal-content" class="space-y-6">
           <!-- Basic Meaning -->
           <div class="bg-[#fdf6e3] rounded-2xl p-6 border border-[#eee8d5] shadow-sm transform hover:-translate-y-0.5 transition-transform">
-            <p class="text-xs text-[#859900] font-medium mb-2 pl-1 tracking-widest">사전적 의미</p>
+            <p class="text-sm text-[#859900] font-medium mb-2 pl-1 tracking-widest">사전적 의미</p>
             <p id="modal-meaning-basic" class="text-lg font-medium text-[#073642] break-keep leading-snug pl-1"></p>
           </div>
   
           <!-- Examples -->
           <div>
-            <p class="text-xs text-[#cb4b16] font-medium mb-3 tracking-widest pl-2">💡 실생활 예문</p>
+            <p class="text-sm text-[#cb4b16] font-medium mb-3 tracking-widest pl-2">💡 실생활 예문</p>
             <ul id="modal-examples" class="text-sm text-left w-full text-stone-700 bg-[#fdf6e3] border border-[#eee8d5] p-6 rounded-2xl space-y-4 break-keep leading-relaxed list-none shadow-sm">
             </ul>
           </div>
   
           <!-- Detailed Meaning -->
           <div class="bg-[#fdf6e3] rounded-2xl p-6 border border-[#eee8d5] shadow-sm">
-            <p class="text-xs text-[#859900] font-medium mb-2 pl-1 tracking-widest">상세 해설 & 뉘앙스</p>
+            <p class="text-sm text-[#859900] font-medium mb-2 pl-1 tracking-widest">상세 해설 & 뉘앙스</p>
             <p id="modal-meaning-detailed" class="text-sm font-medium text-[#586e75] leading-loose break-keep pl-1"></p>
           </div>
           
           <!-- Hanja -->
           <div id="modal-hanja-area" class="bg-[#859900]/10 rounded-2xl p-6 border border-[#859900]/30 hidden mt-2">
-            <p class="text-xs text-[#586e75] font-medium mb-2 pl-1 tracking-widest">한자 분해 및 어원</p>
+            <p class="text-sm text-[#586e75] font-medium mb-2 pl-1 tracking-widest">한자 분해 및 어원</p>
             <p id="modal-hanja-breakdown" class="text-sm font-medium text-[#414A35] leading-loose break-keep pl-1"></p>
           </div>
           
           <!-- User Note (Modal) -->
           <div id="modal-user-note-area" class="bg-[#eee8d5] rounded-2xl p-6 border border-[#93a1a1] shadow-sm hidden mt-2">
-            <p class="text-xs text-[#cb4b16] font-medium mb-2 pl-1 tracking-widest">✏️ 나만의 비밀 노트</p>
+            <p class="text-sm text-[#cb4b16] font-medium mb-2 pl-1 tracking-widest">✏️ 나만의 비밀 노트</p>
             <p id="modal-user-note" class="text-sm font-medium text-stone-700 leading-loose break-keep pl-1 whitespace-pre-wrap"></p>
           </div>
         </div>
@@ -256,7 +261,7 @@
     </div> <!-- /왼쪽 래퍼 끝 -->
 
   <!-- 미니 사전 패널 (오른쪽/모바일은 그냥 아래 배치) -->
-  <aside id="dict-panel" class="w-full xl:w-[360px] bg-[#fdf6e3] rounded-3xl xl:rounded-2xl shadow-sm border border-[#eee8d5] xl:border-[#93a1a1] flex flex-col flex-shrink-0 h-fit max-h-[800px] mb-10 xl:mb-0">
+  <aside id="dict-panel" class="w-full xl:w-[360px] bg-[#fdf6e3] rounded-3xl xl:rounded-2xl shadow-sm border border-[#eee8d5] xl:border-[#93a1a1] flex flex-col flex-shrink-0 h-fit max-h-[800px] mb-10 xl:mb-0 xl:mt-[37px]">
     <div class="p-4 border-b border-[#eee8d5] flex justify-between items-center bg-[#eee8d5]/40 xl:rounded-t-2xl">
       <span class="text-sm font-medium font-serif flex items-center gap-2 text-[#586e75]">
         <svg class="w-4 h-4 text-[#859900]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path></svg>

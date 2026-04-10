@@ -643,7 +643,7 @@ async function loadNextWord() {
 }
 
 // 1차 통신: 예문과 해설 가져오기 (이제 캐시는 백엔드 Worker의 KV가 담당합니다)
-async function fetchWordContext(wordObj) {
+async function fetchWordContext(wordObj, force = false) {
   try {
     const response = await fetch(WORKER_URL, {
       method: "POST",
@@ -653,7 +653,8 @@ async function fetchWordContext(wordObj) {
         word: wordObj.word,
         meaning: wordObj.meaning,
         pos: wordObj.pos,
-        hanja: wordObj.hanja
+        hanja: wordObj.hanja,
+        force: force
       })
     });
 
@@ -953,6 +954,32 @@ async function saveUserNote() {
     btn.textContent = "저장하기";
     btn.classList.remove("opacity-50");
     btn.classList.add("cursor-pointer");
+  }
+}
+
+// -------------------------------------------------------------
+// AI 답변 재요청 기능
+// -------------------------------------------------------------
+async function retryFetchContext() {
+  if (!currentWord) return;
+  if (!confirm("AI에게 뜻풀이와 예문을 새롭게 다시 생성하도록 요청할까요? (시간이 약간 소요될 수 있습니다)")) return;
+
+  // 로딩 상태로 변경
+  elements.wordBackMeaningBasic.textContent = "-";
+  elements.wordBackMeaningDetailed.textContent = "AI 선생님이 답변을 새로 만들고 있습니다...";
+  elements.wordBackHanjaBreakdown.textContent = "";
+
+  isContextLoading = true;
+  await fetchWordContext(currentWord, true);
+
+  // 새로 가져온 데이터로 업데이트
+  elements.wordBackMeaningBasic.textContent = currentWord.meaning || currentAiContext.basicMeaning || currentAiContext.detailedMeaning || "정보가 없습니다.";
+  elements.wordBackMeaningDetailed.textContent = currentAiContext.detailedMeaning || "-";
+  if (currentAiContext.hanjaBreakdown && currentAiContext.hanjaBreakdown.trim() !== "") {
+    elements.wordBackHanjaBreakdown.textContent = currentAiContext.hanjaBreakdown;
+    elements.hanjaBreakdownArea.classList.remove('hidden');
+  } else {
+    elements.hanjaBreakdownArea.classList.add('hidden');
   }
 }
 

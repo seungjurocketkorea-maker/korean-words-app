@@ -55,8 +55,8 @@ export default {
       // 캐시 키 생성 (품사가 있으면 구분)
       const cacheKey = pos ? `${word}_${pos}` : word;
 
-      // KV 데이터베이스 캐시 확인 로직 (context 요청인 경우에만)
-      if (action === "context" && env.AI_CACHE) {
+      // KV 데이터베이스 캐시 확인 로직 (context 요청인 경우에만, 단 force 재생성 아닐 때만)
+      if (action === "context" && env.AI_CACHE && !body.force) {
         try {
           const cachedVal = await env.AI_CACHE.get(cacheKey);
           if (cachedVal) {
