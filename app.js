@@ -307,8 +307,17 @@ async function loadNextWord() {
   await fetchWordContext(currentWord);
 }
 
-// 1차 통신: 예문과 해설 가져오기
+// 1차 통신: 예문과 해설 가져오기 (캐시 적용)
 async function fetchWordContext(wordObj) {
+  const wordId = wordObj.id;
+  
+  // 이미 캐싱된 데이터가 있다면 즉시 반환 (통신 X)
+  if (userProgress[wordId] && userProgress[wordId].aiContext) {
+    currentAiContext = userProgress[wordId].aiContext;
+    renderContextLoaded();
+    return;
+  }
+
   try {
     const response = await fetch(WORKER_URL, {
       method: "POST",
@@ -326,7 +335,21 @@ async function fetchWordContext(wordObj) {
       const errObj = await response.json().catch(() => ({}));
       throw new Error(`Worker Error: ${response.status} - ${errObj.error || ''} \n${errObj.stack || ''}`);
     }
-    currentAiContext = await response.json(); 
+    const data = await response.json();
+    currentAiContext = data;
+
+    // 통신 완료 후 로컬에 데이터 백업 (캐시 저장)
+    if (!userProgress[wordId]) {
+      userProgress[wordId] = { status: 'pending', errCount: 0, nextReview: 0 };
+    }
+    userProgress[wordId].aiContext = currentAiContext;
+    
+    // 할당량 초과 시 예외처리
+    try {
+      saveProgress(); 
+    } catch (quotaError) {
+      console.warn("브라우저 데이터 한도에 도달하여 일부 단어의 AI 데이터가 임시 캐싱되었습니다.", quotaError);
+    }
 
     renderContextLoaded();
   } catch (error) {
