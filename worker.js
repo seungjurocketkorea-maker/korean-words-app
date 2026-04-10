@@ -57,8 +57,11 @@ export default {
         try {
           const cachedVal = await env.AI_CACHE.get(word);
           if (cachedVal) {
+             const userNote = await env.AI_CACHE.get(`note_${word}`) || "";
+             const obj = JSON.parse(cachedVal);
+             obj.userNote = userNote;
             // 서버 캐시에 있으면 즉시 반환 (제미나이 통신 X)
-            return new Response(cachedVal, {
+            return new Response(JSON.stringify(obj), {
               status: 200,
               headers: { ...corsHeaders, 'Content-Type': 'application/json' }
             });
@@ -111,6 +114,25 @@ export default {
         }
       }
 
+      // ------------------------------------------
+      // 사용자 노트 저장 로직 (save_note)
+      // ------------------------------------------
+      if (action === "save_note") {
+        if (!env.AI_CACHE) {
+          return new Response(JSON.stringify({ error: "KV DB not available" }), { status: 500, headers: corsHeaders });
+        }
+        try {
+          // note 필드가 넘어온다고 가정 (body.note) - 위에서 추출하지 않았으므로 body 사용 가능
+          await env.AI_CACHE.put(`note_${word}`, body.note || "");
+          return new Response(JSON.stringify({ success: true }), {
+            status: 200,
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          });
+        } catch (e) {
+          return new Response(JSON.stringify({ error: e.message }), { status: 500, headers: corsHeaders });
+        }
+      }
+
       if (action === "context") {
         // 1. 단어 정보 요청 (예문 3개 및 한자 풀이, 사려깊은 뉘앙스)
         promptText = `
@@ -154,7 +176,7 @@ JSON 파싱 가능한 형태로만 반환하라.
 }
 `;
       } else {
-        return new Response(JSON.stringify({ error: 'Invalid action. Must be "context" or "grade"' }), { status: 400, headers: corsHeaders });
+        return new Response(JSON.stringify({ error: 'Invalid action.' }), { status: 400, headers: corsHeaders });
       }
 
       const geminiEndpoint = `https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-lite-latest:generateContent?key=${apiKey}`;
@@ -196,6 +218,11 @@ JSON 파싱 가능한 형태로만 반환하라.
         try {
           // 캐시 저장
           await env.AI_CACHE.put(word, JSON.stringify(resultObj));
+          
+          // 사용자가 작성한 노트가 캐시되어 있으면 결과 객체에 다시 붙여서 프론트로 보냄
+          const userNote = await env.AI_CACHE.get(`note_${word}`) || "";
+          resultObj.userNote = userNote;
+          
         } catch (kvError) {
           console.error("KV put error:", kvError);
         }

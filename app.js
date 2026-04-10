@@ -93,7 +93,14 @@ const elements = {
   dictResultState: document.getElementById('dict-result-state'),
   dictWordTitle: document.getElementById('dict-word-title'),
   dictWordMeaning: document.getElementById('dict-word-meaning'),
-  btnCloseDict: document.getElementById('btn-close-dict')
+  btnCloseDict: document.getElementById('btn-close-dict'),
+
+  // User Note Elements
+  backUserNoteInput: document.getElementById('back-user-note-input'),
+  btnSaveNote: document.getElementById('btn-save-note'),
+  noteSaveMsg: document.getElementById('note-save-msg'),
+  modalUserNoteArea: document.getElementById('modal-user-note-area'),
+  modalUserNote: document.getElementById('modal-user-note')
 };
 
 // ==========================================
@@ -437,6 +444,14 @@ async function openWordModal(wObj) {
       elements.modalExamples.innerHTML = '<li>예문이 없습니다.</li>';
     }
 
+    // 사용자 노트 영역 세팅
+    if (data.userNote && data.userNote.trim() !== "") {
+      elements.modalUserNote.textContent = data.userNote;
+      elements.modalUserNoteArea.classList.remove('hidden');
+    } else {
+      elements.modalUserNoteArea.classList.add('hidden');
+    }
+
   } catch (error) {
     console.error(error);
     elements.modalMeaningBasic.textContent = wObj.meaning || "사전 정보를 불러올 수 없습니다.";
@@ -619,6 +634,8 @@ async function loadNextWord() {
   elements.wordBackHanjaBreakdown.textContent = "";
   elements.hanjaBreakdownArea.classList.add('hidden');
   elements.aiFeedback.textContent = "";
+  if(elements.backUserNoteInput) elements.backUserNoteInput.value = "";
+  if(elements.noteSaveMsg) elements.noteSaveMsg.classList.add('hidden');
 
   isContextLoading = true;
   await fetchWordContext(currentWord);
@@ -796,6 +813,12 @@ function flipCardAndShowFeedback(aiGrade) {
   // 뒷면 전환 애니메이션
   elements.cardContainer.classList.add('card-flipped');
 
+  // 사용자 노트 값 바인딩
+  if (elements.backUserNoteInput && currentAiContext) {
+    elements.backUserNoteInput.value = currentAiContext.userNote || "";
+    elements.noteSaveMsg.classList.add('hidden');
+  }
+
   // 버튼 교체
   elements.btnSubmit.classList.add('hidden');
   elements.btnContainerNext.classList.remove('hidden');
@@ -884,6 +907,49 @@ function closeDictPanel() {
   if (panel) {
     panel.classList.add('translate-y-full'); // 모바일에서 패널 닫기 (아래로 슬라이드 다운)
     lastSelectedText = ""; // 닫았을 땐 다음 선택 시 다시 허용
+  }
+}
+
+// -------------------------------------------------------------
+// 사용자 사전 노트 저장 기능
+// -------------------------------------------------------------
+async function saveUserNote() {
+  if (!currentWord) return;
+  
+  const noteText = elements.backUserNoteInput.value.trim();
+  const btn = elements.btnSaveNote;
+  
+  btn.textContent = "저장 중...";
+  btn.classList.add("opacity-50");
+  btn.classList.remove("cursor-pointer");
+
+  try {
+    const response = await fetch(WORKER_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        action: "save_note",
+        word: currentWord.word,
+        note: noteText
+      })
+    });
+
+    if (!response.ok) throw new Error("네트워크 오류");
+    
+    elements.noteSaveMsg.classList.remove('hidden');
+    // 현재 세션 로컬에도 씌우기
+    if (currentAiContext) {
+      currentAiContext.userNote = noteText;
+    }
+    setTimeout(() => {
+      elements.noteSaveMsg.classList.add('hidden');
+    }, 3500);
+  } catch (e) {
+    alert("노트 저장에 실패했습니다.");
+  } finally {
+    btn.textContent = "저장하기";
+    btn.classList.remove("opacity-50");
+    btn.classList.add("cursor-pointer");
   }
 }
 
