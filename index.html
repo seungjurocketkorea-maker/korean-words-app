@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>국어 단어 마스터 1000</title>
+  
+  <script src="https://unpkg.com/@tailwindcss/browser@4"></script>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body class="min-h-screen flex flex-col items-center py-10 px-4">
+
+  <header class="w-full max-w-2xl mb-8 text-center">
+    <h1 class="text-4xl font-bold font-serif text-[#3B392E] mb-3 tracking-tight">국어 단어 마스터 1000</h1>
+    <p class="text-[#84806A] text-sm font-medium">우리말의 다채로운 뉘앙스와 깊이를 내 것으로</p>
+  </header>
+
+  <main class="w-full max-w-2xl space-y-8">
+    
+    <section class="glass-panel rounded-3xl p-6 relative overflow-hidden">
+      <!-- Glow effect (Olive & Orange tones) -->
+      <div class="absolute -top-10 -right-10 w-32 h-32 bg-[#8ba175] rounded-full mix-blend-multiply filter blur-3xl opacity-20"></div>
+      <div class="absolute -bottom-10 -left-10 w-32 h-32 bg-[#D98C63] rounded-full mix-blend-multiply filter blur-3xl opacity-20"></div>
+      
+      <div class="flex justify-between items-end mb-4 relative z-10">
+        <div>
+          <h2 class="text-lg font-bold text-[#3B392E]">나의 마스터 진척도</h2>
+          <p class="text-xs text-[#84806A] mt-1">1000개의 단어 중 <span id="progress-text" class="font-bold text-[#6A7B54]">0%</span> 마스터</p>
+        </div>
+      </div>
+
+      <div class="w-full bg-[#D6D2BF] h-3 rounded-full mb-6 overflow-hidden relative z-10">
+        <div id="progress-bar" class="bg-gradient-to-r from-[#8ba175] to-[#D98C63] h-3 rounded-full progress-bar-fill" style="width: 0%"></div>
+      </div>
+
+      <div class="grid grid-cols-3 gap-4 text-center relative z-10">
+        <div class="bg-white/50 backdrop-blur-sm rounded-2xl py-3 border border-[#E0DBC5]">
+          <p class="text-xs text-[#84806A] font-semibold mb-1 uppercase tracking-wider">대기</p>
+          <p id="stat-pending" class="text-2xl font-bold text-[#5c594c]">0</p>
+        </div>
+        <div class="bg-white/50 backdrop-blur-sm rounded-2xl py-3 border border-[#E0DBC5]">
+          <p class="text-xs text-[#84806A] font-semibold mb-1 uppercase tracking-wider">학습 중</p>
+          <p id="stat-learning" class="text-2xl font-bold text-[#6A7B54]">0</p>
+        </div>
+        <div class="bg-white/50 backdrop-blur-sm rounded-2xl py-3 border border-[#E0DBC5]">
+          <p class="text-xs text-[#84806A] font-semibold mb-1 uppercase tracking-wider">마스터</p>
+          <p id="stat-mastered" class="text-2xl font-bold text-[#C47D57]">0</p>
+        </div>
+      </div>
+    </section>
+
+    <section id="card-area" class="flex flex-col items-center">
+      
+      <div id="word-card-container" class="perspective-1000 w-full group">
+        <div id="word-card-inner" class="card-inner transform-style-3d relative w-full h-[420px] shadow-xl rounded-3xl group-hover:shadow-2xl transition-shadow duration-300">
+          
+          <div class="backface-hidden absolute inset-0 bg-[#FAF8F0] rounded-3xl flex flex-col justify-start items-center p-8 border border-[#E0DBC5]">
+            <h3 id="word-front" class="text-3xl font-bold font-serif text-[#3B392E] mt-2 mb-1">단어</h3>
+            <p id="word-front-hanja" class="text-base text-[#8A887A] font-medium tracking-widest mb-1"></p>
+            <p id="word-front-hanja-meaning" class="text-xs text-[#6A7B54] font-medium tracking-wide mb-3"></p>
+            
+            <p id="word-front-example" class="text-sm text-stone-700 bg-[#EAE6D6] p-3 rounded-lg w-full mb-4 break-keep italic text-center"></p>
+            
+            <textarea id="user-meaning-input" class="w-full bg-[#F5F2E6] border border-[#D6D2BF] rounded-xl p-4 text-stone-800 focus:outline-none focus:ring-2 focus:ring-[#8ba175] focus:bg-[#FAF8F0] transition-colors resize-none h-20" placeholder="이 단어의 뜻은 무엇일까요? 서술해보세요."></textarea>
+            
+            <div id="loading-indicator" class="hidden w-full flex-col items-center justify-center mt-6 text-[#8A887A]">
+              <div class="w-8 h-8 border-4 border-[#8ba175] border-t-transparent rounded-full animate-spin mb-3"></div>
+              <p class="text-sm font-medium animate-pulse">AI가 답변을 채점하고 있어요...</p>
+            </div>
+          </div>
+
+          <div class="rotate-y-180 backface-hidden absolute inset-0 glass-panel rounded-3xl flex flex-col p-6 border-t border-l border-white/80 bg-gradient-to-br from-[#EAE6D6]/30 to-[#FAF8F0] overflow-y-auto">
+            <div class="flex flex-col h-full">
+              <div id="ai-judgment-area" class="px-4 py-3 rounded-xl mb-4 bg-white/60">
+                <p id="ai-judgment-text" class="font-bold text-lg text-[#3B392E]">채점 결과</p>
+                <p id="ai-feedback" class="text-sm text-stone-700 mt-1 break-keep">피드백이 표시됩니다.</p>
+              </div>
+
+              <div class="flex-1 space-y-3">
+                <div id="hanja-breakdown-area" class="bg-[#E5EAD8]/60 rounded-xl p-4 hidden">
+                  <p class="text-xs text-[#7A8B63] font-bold mb-1 uppercase tracking-widest">한자 뜻풀이</p>
+                  <p id="word-back-hanja-breakdown" class="text-sm font-medium text-[#414A35] leading-relaxed break-keep"></p>
+                </div>
+                <div class="bg-white/60 rounded-xl p-4">
+                  <p class="text-xs text-[#8A887A] font-bold mb-1 uppercase tracking-widest">정확한 뜻</p>
+                  <p id="word-back-meaning" class="text-base font-medium text-stone-800 leading-relaxed break-keep"></p>
+                </div>
+                <div class="bg-white/60 rounded-xl p-4">
+                  <p class="text-xs text-[#8A887A] font-bold mb-1 uppercase tracking-widest">예문</p>
+                  <p id="word-back-example" class="text-base italic text-stone-700 break-keep"></p>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+        </div>
+      </div>
+
+      <div class="mt-8 w-full max-w-sm">
+        
+        <button id="btn-submit" class="w-full py-4 rounded-2xl bg-[#5C664C] text-[#F5F2E6] font-medium shadow-lg shadow-[#5C664C]/20 hover:bg-[#4a523d] transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
+          AI에게 채점받기
+        </button>
+
+        <div id="btn-container-actions" class="hidden flex gap-3 w-full">
+          <button id="btn-mark-pending" class="flex-1 py-4 bg-[#FAF8F0] text-stone-600 rounded-2xl border border-[#D6D2BF] font-medium transition-colors hover:bg-white">
+            전혀 모름
+          </button>
+          <button id="btn-mark-learning" class="flex-1 py-4 bg-[#E8EDE1] text-[#556343] rounded-2xl border border-[#D4DEC9] font-medium transition-colors hover:bg-[#DEE6D5]">
+            학습 중
+          </button>
+          <button id="btn-mark-mastered" class="flex-1 py-4 bg-[#D98C63] text-white rounded-2xl font-medium shadow-lg shadow-[#D98C63]/30 transition-colors hover:bg-[#C47D57]">
+            완벽히 암기
+          </button>
+        </div>
+
+        <div id="btn-container-next" class="hidden w-full">
+          <button id="btn-next" class="w-full py-4 bg-[#5C664C] text-[#F5F2E6] rounded-2xl font-medium shadow-lg shadow-[#5C664C]/20 hover:bg-[#4a523d] transition-colors flex items-center justify-center gap-2">
+            다음 단어 
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+          </button>
+        </div>
+      </div>
+
+    </section>
+
+    <section id="empty-state" class="hidden glass-panel rounded-3xl p-12 text-center flex flex-col items-center">
+      <div class="w-20 h-20 bg-[#E8EDE1] text-[#6A7B54] rounded-full flex items-center justify-center mb-6">
+        <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+      </div>
+      <h3 class="text-3xl font-bold font-serif text-[#3B392E] mb-3">모든 단어를 마스터했습니다!</h3>
+      <p class="text-[#84806A]">대기 중이거나 학습 중인 단어가 없습니다.<br>수고하셨습니다 👏</p>
+    </section>
+
+  </main>
+
+  <script src="data.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
