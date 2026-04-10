@@ -176,7 +176,7 @@ async function submitAnswer() {
   }, 150);
 }
 
-const WORKER_URL = "https://korean-words.seungju-rocketkorea.workers.dev"; // 예: https://your-worker.your-username.workers.dev
+const WORKER_URL = "https://korean-words.seungju-rocketkorea.workers.dev/api/check"; // 예: https://your-worker.your-username.workers.dev/api/check
 
 // AI 통신 함수 (실제 연결)
 async function checkAnswerWithAI(wordObject, userAnswer) {
