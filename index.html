@@ -8,7 +8,10 @@
   <script src="https://unpkg.com/@tailwindcss/browser@4"></script>
   <link rel="stylesheet" href="style.css" />
 </head>
-<body class="min-h-screen flex flex-col items-center py-6 md:py-10 px-4 md:px-8">
+<body class="min-h-screen flex flex-col xl:flex-row xl:items-start xl:justify-center py-6 md:py-10 px-4 md:px-8 gap-8 relative overflow-x-hidden bg-[#fdf6e3]">
+
+  <!-- 메인 앱 컨테이너 (왼쪽) -->
+  <div class="flex flex-col items-center w-full max-w-2xl mx-auto xl:mx-0 flex-shrink-0">
 
   <header class="w-full max-w-2xl mb-8 text-center flex flex-col items-center">
     <h1 class="text-3xl font-medium font-serif text-[#586e75] mb-2 tracking-tight">AI 한국어 단어 1,000</h1>
@@ -236,6 +239,48 @@
       © 2026. Powered by Google Gemini AI
     </p>
   </footer>
+
+  </footer>
+
+  </div> <!-- /메인 앱 컨테이너 끝 -->
+
+  <!-- 미니 사전 패널 (오른쪽/모바일 슬라이드) -->
+  <aside id="dict-panel" class="fixed bottom-0 left-0 w-full bg-[#fdf6e3] rounded-t-3xl shadow-[0_-10px_40px_rgba(0,0,0,0.1)] border-t border-[#eee8d5] transform translate-y-full transition-transform duration-300 z-50 
+                                xl:static xl:translate-y-0 xl:w-[360px] xl:rounded-2xl xl:shadow-sm xl:border xl:border-[#93a1a1] xl:h-[calc(100vh-5rem)] xl:sticky xl:top-10 flex flex-col flex-shrink-0">
+    <div class="p-4 border-b border-[#eee8d5] flex justify-between items-center bg-[#eee8d5]/40 xl:rounded-t-2xl">
+      <span class="text-sm font-medium font-serif flex items-center gap-2 text-[#586e75]">
+        <svg class="w-4 h-4 text-[#859900]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path></svg>
+        AI 빠른 사전
+      </span>
+      <button id="btn-close-dict" class="text-stone-400 hover:text-red-500 transition-colors p-1 xl:hidden">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+      </button>
+    </div>
+    
+    <div class="flex-1 p-6 flex flex-col overflow-y-auto custom-scrollbar relative">
+      <!-- 빈 상태 -->
+      <div id="dict-empty-state" class="flex flex-col items-center justify-center h-full text-center opacity-50 py-10 transition-opacity">
+        <svg class="w-12 h-12 mb-3 text-[#93a1a1]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 15l-2 5L9 9l11 4-5 2zm0 0l5 5M7.188 2.239l.777 2.897M5.136 7.965l-2.898-.777M13.95 4.05l-2.122 2.122m-5.657 5.656l-2.12 2.122"></path></svg>
+        <p class="text-sm font-medium text-[#586e75]">단어장 뒷면에서<br>모르는 글자를 드래그 해보세요</p>
+      </div>
+
+      <!-- 로딩 상태 -->
+      <div id="dict-loading-state" class="hidden flex-col items-center justify-center h-full py-10">
+        <div class="w-8 h-8 border-4 border-[#859900] border-t-transparent rounded-full animate-spin mb-3"></div>
+        <p class="text-xs font-medium text-[#859900] animate-pulse">사전 의미를 찾는 중...</p>
+      </div>
+
+      <!-- 결과 상태 -->
+      <div id="dict-result-state" class="hidden flex-col h-full items-start w-full">
+        <p class="text-xs text-[#cb4b16] font-medium tracking-widest mb-1">검색 결과</p>
+        <h4 id="dict-word-title" class="text-3xl font-medium font-serif text-[#073642] mb-4 break-words w-full"></h4>
+        <div class="bg-[#eee8d5]/50 border border-[#eee8d5] rounded-xl p-4 w-full relative">
+          <svg class="w-6 h-6 absolute -top-3 -left-2 text-[#859900] opacity-30" viewBox="0 0 24 24" fill="currentColor"><path d="M14.017 21v-7.391c0-5.704 3.731-9.57 8.983-10.609l.995 2.151c-2.432.917-3.995 3.638-3.995 5.849h4v10h-9.983zm-14.017 0v-7.391c0-5.704 3.748-9.57 9-10.609l.996 2.151c-2.433.917-3.996 3.638-3.996 5.849h3.983v10h-9.983z"></path></svg>
+          <p id="dict-word-meaning" class="text-sm text-stone-700 leading-relaxed font-medium break-keep relative z-10 w-full"></p>
+        </div>
+      </div>
+    </div>
+  </aside>
 
   <script src="words_db.js"></script>
   <script src="app.js"></script>

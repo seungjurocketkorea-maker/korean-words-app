@@ -68,6 +68,49 @@ export default {
         }
       }
 
+      // ------------------------------------------
+      // 네이버 사전 API Proxy 로직 (quick_dict)
+      // ------------------------------------------
+      if (action === "quick_dict") {
+        try {
+          const naverUrl = `https://ko.dict.naver.com/api3/koko/search?query=${encodeURIComponent(word)}`;
+          const naverRes = await fetch(naverUrl, {
+             headers: {
+               "User-Agent": "Mozilla/5.0",
+               "Referer": "https://ko.dict.naver.com/"
+             }
+          });
+          const naverData = await naverRes.json();
+          let meaningStr = "단어의 뜻을 찾을 수 없습니다.";
+          
+          if (naverData && naverData.searchResultMap && naverData.searchResultMap.searchResultListMap && naverData.searchResultMap.searchResultListMap.WORD) {
+            const items = naverData.searchResultMap.searchResultListMap.WORD.items;
+            if (items && items.length > 0) {
+               const firstItem = items[0];
+               if (firstItem.meansCollector && firstItem.meansCollector.length > 0) {
+                 const means = firstItem.meansCollector[0].means;
+                 if (means && means.length > 0) {
+                   meaningStr = means[0].value;
+                   // HTML 태그 제거 로직
+                   meaningStr = meaningStr.replace(/<[^>]*>?/gm, '');
+                 }
+               }
+            }
+          }
+          
+          return new Response(JSON.stringify({ meaning: meaningStr }), {
+            status: 200,
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          });
+
+        } catch (e) {
+          return new Response(JSON.stringify({ meaning: "사전 검색 중 오류가 발생했습니다." }), {
+            status: 200,
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          });
+        }
+      }
+
       if (action === "context") {
         // 1. 단어 정보 요청 (예문 3개 및 한자 풀이, 사려깊은 뉘앙스)
         promptText = `

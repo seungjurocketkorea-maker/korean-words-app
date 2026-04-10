@@ -84,7 +84,16 @@ const elements = {
   modalExamples: document.getElementById('modal-examples'),
   modalMeaningDetailed: document.getElementById('modal-meaning-detailed'),
   modalHanjaArea: document.getElementById('modal-hanja-area'),
-  modalHanjaBreakdown: document.getElementById('modal-hanja-breakdown')
+  modalHanjaBreakdown: document.getElementById('modal-hanja-breakdown'),
+  
+  // Dictionary Panel
+  dictPanel: document.getElementById('dict-panel'),
+  dictEmptyState: document.getElementById('dict-empty-state'),
+  dictLoadingState: document.getElementById('dict-loading-state'),
+  dictResultState: document.getElementById('dict-result-state'),
+  dictWordTitle: document.getElementById('dict-word-title'),
+  dictWordMeaning: document.getElementById('dict-word-meaning'),
+  btnCloseDict: document.getElementById('btn-close-dict')
 };
 
 // ==========================================
@@ -131,6 +140,13 @@ function initApp() {
 
   elements.btnSubmit.addEventListener('click', submitAnswer);
   elements.btnNext.addEventListener('click', loadNextWord);
+  
+  // Dictionary / Selection Event
+  document.addEventListener('mouseup', handleTextSelection);
+  document.addEventListener('touchend', handleTextSelection);
+  if (elements.btnCloseDict) {
+    elements.btnCloseDict.addEventListener('click', closeDictPanel);
+  }
   
   // Enter 키로도 제출 가능하게
   elements.userMeaningInput.addEventListener('keypress', function (e) {
@@ -783,6 +799,92 @@ function flipCardAndShowFeedback(aiGrade) {
   // 버튼 교체
   elements.btnSubmit.classList.add('hidden');
   elements.btnContainerNext.classList.remove('hidden');
+}
+
+// ==========================================
+// 5. 드래그 빠른 사전 통신
+// ==========================================
+let quickDictTimer = null;
+let lastSelectedText = "";
+
+function handleTextSelection(e) {
+  // 닫기 버튼 등을 클릭했을 때 선택 이벤트가 발동되는 것을 방지
+  if (e.target.closest('#dict-panel')) return;
+
+  setTimeout(() => {
+    const selection = window.getSelection();
+    if (!selection) return;
+    const text = selection.toString().trim();
+    
+    // 유효한 텍스트 (한글, 영문 등, 길이 1~20)인지 판별
+    if (text && text.length > 0 && text.length <= 20) {
+      if (text === lastSelectedText) return; // 같은 텍스트 중첩 호출 방지
+      // 길이가 긴 문구인 경우 무시
+      if (text.includes(" ") && text.length > 10) return; 
+
+      lastSelectedText = text;
+
+      // 중복 호출 방지용 디바운스
+      clearTimeout(quickDictTimer);
+      quickDictTimer = setTimeout(() => {
+        openDictPanelForWord(text);
+      }, 300);
+    }
+  }, 100);
+}
+
+async function openDictPanelForWord(wordText) {
+  const panel = elements.dictPanel;
+  
+  // 모바일 슬라이드 패널 열기
+  if (panel && panel.classList.contains('translate-y-full')) {
+    panel.classList.remove('translate-y-full');
+  }
+
+  // UI 상태 전환 (로딩되게 전환)
+  elements.dictEmptyState.classList.add('hidden');
+  elements.dictResultState.classList.remove('flex');
+  elements.dictResultState.classList.add('hidden');
+  elements.dictLoadingState.classList.remove('hidden');
+  elements.dictLoadingState.classList.add('flex');
+
+  // API 호출
+  try {
+    const response = await fetch(WORKER_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        action: "quick_dict",
+        word: wordText
+      })
+    });
+
+    if (!response.ok) throw new Error("네트워크 오류");
+    const data = await response.json();
+    
+    // 결과 UI 업데이트
+    elements.dictWordTitle.textContent = wordText;
+    elements.dictWordMeaning.textContent = data.meaning || "단어의 뜻을 찾을 수 없습니다.";
+    
+  } catch (err) {
+    console.error("사전 API 에러:", err);
+    elements.dictWordTitle.textContent = wordText;
+    elements.dictWordMeaning.textContent = "데이터를 불러오는 중 오류가 발생했습니다.";
+  } finally {
+    // 로딩 숨기고 결과 보이기
+    elements.dictLoadingState.classList.remove('flex');
+    elements.dictLoadingState.classList.add('hidden');
+    elements.dictResultState.classList.remove('hidden');
+    elements.dictResultState.classList.add('flex');
+  }
+}
+
+function closeDictPanel() {
+  const panel = elements.dictPanel;
+  if (panel) {
+    panel.classList.add('translate-y-full'); // 모바일에서 패널 닫기 (아래로 슬라이드 다운)
+    lastSelectedText = ""; // 닫았을 땐 다음 선택 시 다시 허용
+  }
 }
 
 // 앱 실행
