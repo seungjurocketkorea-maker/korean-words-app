@@ -121,7 +121,7 @@ function initApp() {
     if(level === 'REVIEW') return; // 방어 코드
 
     const btn = document.createElement('button');
-    btn.className = `px-6 py-2 rounded-full font-bold text-sm transition-all border shadow-sm tab-btn bg-white/60 text-stone-500 border-[#D6D2BF] hover:bg-white`;
+    btn.className = `px-6 py-2 rounded-full font-bold text-sm transition-all border tab-btn bg-white text-stone-500 border-[#D6D2BF] hover:bg-[#FAF8F0]`;
     btn.dataset.level = level;
     // 맵핑된 이름 출력, 없으면 기존 이름
     btn.textContent = levelNames[level] || `${level} 등급`;
@@ -199,16 +199,16 @@ function selectLevel(level) {
     if (btn.dataset.level === level || (level === 'REVIEW' && btn.id === 'btn-tab-review')) {
       // 선택된 스타일
       if(level === 'REVIEW') {
-        btn.className = `px-6 py-2 rounded-full font-bold text-sm transition-all border shadow-sm bg-[#D98C63] text-white border-[#D98C63]`;
+        btn.className = `px-6 py-2 rounded-full font-bold text-sm transition-all border bg-[#D98C63] text-white border-[#D98C63]`;
       } else {
-        btn.className = `px-6 py-2 rounded-full font-bold text-sm transition-all border shadow-sm tab-btn bg-[#5C664C] text-[#F5F2E6] border-[#5C664C]`;
+        btn.className = `px-6 py-2 rounded-full font-bold text-sm transition-all border tab-btn bg-[#5C664C] text-[#F5F2E6] border-[#5C664C]`;
       }
     } else {
       // 해제된 스타일
       if (btn.id === 'btn-tab-review') {
-         btn.className = `px-6 py-2 rounded-full font-bold text-sm transition-all border shadow-sm bg-white/60 text-[#D98C63] border-[#D6D2BF] hover:bg-white`;
+         btn.className = `px-6 py-2 rounded-full font-bold text-sm transition-all border bg-white text-[#D98C63] border-[#D6D2BF] hover:bg-[#FAF8F0]`;
       } else {
-         btn.className = `px-6 py-2 rounded-full font-bold text-sm transition-all border shadow-sm tab-btn bg-white/60 text-stone-500 border-[#D6D2BF] hover:bg-white`;
+         btn.className = `px-6 py-2 rounded-full font-bold text-sm transition-all border tab-btn bg-white text-stone-500 border-[#D6D2BF] hover:bg-[#FAF8F0]`;
       }
     }
   });
@@ -303,17 +303,17 @@ function renderReviewList() {
      }
      
      const li = document.createElement('li');
-     li.className = 'flex flex-col sm:flex-row sm:items-center justify-between p-5 md:p-6 bg-white/70 border border-[#E0DBC5] rounded-2xl shadow-sm hover:shadow-md transition-all gap-3 cursor-pointer border-l-4 hover:-translate-y-1 relative group';
+     li.className = 'flex flex-col sm:flex-row sm:items-center justify-between p-5 md:p-6 bg-white border border-[#E0DBC5] rounded-2xl transition-all gap-3 cursor-pointer border-l-4 hover:-translate-y-1 relative group';
      li.style.borderLeftColor = st === 'wrong' ? '#EF4444' : (st === 'learning' ? '#F59E0B' : '#10B981');
      li.onclick = () => openWordModal(w); // 클릭 시 모달창 띄우기
 
      li.innerHTML = `
         <div class="flex flex-col gap-2 w-full pr-10 sm:pr-12">
           <div class="flex items-center gap-3">
-            <span class="text-[0.65rem] px-2 py-1 rounded-md font-bold whitespace-nowrap shadow-sm ${badgeColor}">${dot} ${badgeText}</span>
+            <span class="text-[0.65rem] px-2 py-1 rounded-md font-bold whitespace-nowrap border border-[#E0DBC5] ${badgeColor}">${dot} ${badgeText}</span>
             <div class="flex flex-col">
               <div class="flex items-baseline gap-2">
-                <span class="font-bold font-serif text-[#5C664C] text-xl md:text-2xl">${w.word}</span>
+                <span class="font-medium font-serif text-[#5C664C] text-xl md:text-2xl">${w.word}</span>
                 <span class="text-xs text-[#C47D57] font-bold tracking-wide">${w.pos}</span>
               </div>
               <span class="text-[0.65rem] text-[#8BA175] tracking-widest font-bold">${w.hanja && w.hanja !== '고유어' ? w.hanja : ''}</span>
@@ -325,7 +325,7 @@ function renderReviewList() {
         </div>
         
         <!-- Delete Button (항상 표시, 연한 색깔에서 호버 시 강조됨) -->
-        <button class="absolute top-3 right-3 sm:top-1/2 sm:-translate-y-1/2 p-2 text-stone-300 hover:text-red-500 bg-transparent hover:bg-white transition-all rounded-full z-10 hover:shadow-sm" onclick="deleteWordFromReview(event, '${w.id}')" title="이 단어 기록 지우기">
+        <button class="absolute top-3 right-3 sm:top-1/2 sm:-translate-y-1/2 p-2 text-stone-300 hover:text-red-500 bg-transparent hover:bg-stone-100 transition-all rounded-full z-10 hover:shadow-sm" onclick="deleteWordFromReview(event, '${w.id}')" title="이 단어 기록 지우기">
           <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
         </button>
      `;
