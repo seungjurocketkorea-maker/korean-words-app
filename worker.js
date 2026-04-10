@@ -97,7 +97,7 @@ JSON 파싱 가능한 형태로만 반환하라.
         return new Response(JSON.stringify({ error: 'Invalid action. Must be "context" or "grade"' }), { status: 400, headers: corsHeaders });
       }
 
-      const geminiEndpoint = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`;
+      const geminiEndpoint = `https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-lite-latest:generateContent?key=${apiKey}`;
       const geminiResponse = await fetch(geminiEndpoint, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
