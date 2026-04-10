@@ -1,4 +1,4 @@
-const STORAGE_KEY = 'korean_words_progress_v2';
+﻿const STORAGE_KEY = 'korean_words_progress_v2';
 const WORKER_URL = "https://korean-words.seungju-rocketkorea.workers.dev/api/check";
 
 let userProgress = {}; // { 'word_1195': { status: 'wrong|learning|mastered', nextReview: timestamp, errCount: 0 } }
@@ -121,7 +121,7 @@ function initApp() {
     if(level === 'REVIEW') return; // 방어 코드
 
     const btn = document.createElement('button');
-    btn.className = `px-6 py-2 rounded-full font-bold text-sm transition-all border tab-btn bg-white text-stone-500 border-[#D6D2BF] hover:bg-[#FAF8F0]`;
+    btn.className = `px-6 py-2 rounded-full font-bold text-sm transition-all border tab-btn bg-[#fdf6e3] text-stone-500 border-[#93a1a1] hover:bg-[#fdf6e3]`;
     btn.dataset.level = level;
     // 맵핑된 이름 출력, 없으면 기존 이름
     btn.textContent = levelNames[level] || `${level} 등급`;
@@ -151,12 +151,12 @@ function initApp() {
     btn.addEventListener('click', (e) => {
       // 탭 스타일 변경
       elements.reviewFilterBtns.forEach(b => {
-        b.classList.remove('active', 'bg-[#8ba175]', 'text-white');
-        b.classList.add('bg-white', 'text-stone-600');
+        b.classList.remove('active', 'bg-[#859900]', 'text-[#fdf6e3]');
+        b.classList.add('bg-[#fdf6e3]', 'text-stone-600');
       });
       const target = e.currentTarget;
-      target.classList.remove('bg-white', 'text-stone-600');
-      target.classList.add('active', 'bg-[#8ba175]', 'text-white');
+      target.classList.remove('bg-[#fdf6e3]', 'text-stone-600');
+      target.classList.add('active', 'bg-[#859900]', 'text-[#fdf6e3]');
       
       currentReviewFilter = target.dataset.filter;
       currentReviewPage = 1;
@@ -199,16 +199,16 @@ function selectLevel(level) {
     if (btn.dataset.level === level || (level === 'REVIEW' && btn.id === 'btn-tab-review')) {
       // 선택된 스타일
       if(level === 'REVIEW') {
-        btn.className = `px-6 py-2 rounded-full font-bold text-sm transition-all border bg-[#D98C63] text-white border-[#D98C63]`;
+        btn.className = `px-6 py-2 rounded-full font-bold text-sm transition-all border bg-[#cb4b16] text-[#fdf6e3] border-[#cb4b16]`;
       } else {
-        btn.className = `px-6 py-2 rounded-full font-bold text-sm transition-all border tab-btn bg-[#5C664C] text-[#F5F2E6] border-[#5C664C]`;
+        btn.className = `px-6 py-2 rounded-full font-bold text-sm transition-all border tab-btn bg-[#586e75] text-[#eee8d5] border-[#586e75]`;
       }
     } else {
       // 해제된 스타일
       if (btn.id === 'btn-tab-review') {
-         btn.className = `px-6 py-2 rounded-full font-bold text-sm transition-all border bg-white text-[#D98C63] border-[#D6D2BF] hover:bg-[#FAF8F0]`;
+         btn.className = `px-6 py-2 rounded-full font-bold text-sm transition-all border bg-[#fdf6e3] text-[#cb4b16] border-[#93a1a1] hover:bg-[#fdf6e3]`;
       } else {
-         btn.className = `px-6 py-2 rounded-full font-bold text-sm transition-all border tab-btn bg-white text-stone-500 border-[#D6D2BF] hover:bg-[#FAF8F0]`;
+         btn.className = `px-6 py-2 rounded-full font-bold text-sm transition-all border tab-btn bg-[#fdf6e3] text-stone-500 border-[#93a1a1] hover:bg-[#fdf6e3]`;
       }
     }
   });
@@ -303,23 +303,23 @@ function renderReviewList() {
      }
      
      const li = document.createElement('li');
-     li.className = 'flex flex-col sm:flex-row sm:items-center justify-between p-5 md:p-6 bg-white border border-[#E0DBC5] rounded-2xl transition-all gap-3 cursor-pointer border-l-4 hover:-translate-y-1 relative group';
+     li.className = 'flex flex-col sm:flex-row sm:items-center justify-between p-5 md:p-6 bg-[#fdf6e3] border border-[#eee8d5] rounded-2xl transition-all gap-3 cursor-pointer border-l-4 hover:-translate-y-1 relative group';
      li.style.borderLeftColor = st === 'wrong' ? '#EF4444' : (st === 'learning' ? '#F59E0B' : '#10B981');
      li.onclick = () => openWordModal(w); // 클릭 시 모달창 띄우기
 
      li.innerHTML = `
         <div class="flex flex-col gap-2 w-full pr-10 sm:pr-12">
           <div class="flex items-center gap-3">
-            <span class="text-[0.65rem] px-2 py-1 rounded-md font-bold whitespace-nowrap border border-[#E0DBC5] ${badgeColor}">${dot} ${badgeText}</span>
+            <span class="text-[0.65rem] px-2 py-1 rounded-md font-bold whitespace-nowrap border border-[#eee8d5] ${badgeColor}">${dot} ${badgeText}</span>
             <div class="flex flex-col">
               <div class="flex items-baseline gap-2">
-                <span class="font-medium font-serif text-[#5C664C] text-xl md:text-2xl">${w.word}</span>
-                <span class="text-xs text-[#C47D57] font-bold tracking-wide">${w.pos}</span>
+                <span class="font-medium font-serif text-[#586e75] text-xl md:text-2xl">${w.word}</span>
+                <span class="text-xs text-[#268bd2] font-bold tracking-wide">${w.pos}</span>
               </div>
-              <span class="text-[0.65rem] text-[#8BA175] tracking-widest font-bold">${w.hanja && w.hanja !== '고유어' ? w.hanja : ''}</span>
+              <span class="text-[0.65rem] text-[#859900] tracking-widest font-bold">${w.hanja && w.hanja !== '고유어' ? w.hanja : ''}</span>
             </div>
           </div>
-          <div class="text-xs text-stone-600 sm:max-w-full break-keep leading-tight pl-1 border-l-2 border-[#D6D2BF]/50">
+          <div class="text-xs text-stone-600 sm:max-w-full break-keep leading-tight pl-1 border-l-2 border-[#93a1a1]/50">
             ${w.meaning}
           </div>
         </div>
@@ -787,3 +787,4 @@ function flipCardAndShowFeedback(aiGrade) {
 
 // 앱 실행
 document.addEventListener('DOMContentLoaded', initApp);
+

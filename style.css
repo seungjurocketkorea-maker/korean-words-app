@@ -1,4 +1,4 @@
-@import url('https://cdn.jsdelivr.net/npm/@wantedcomponents/wanted-sans@v1.0.3/packages/wanted-sans/fonts/webfonts/variable/split/WantedSansVariable.min.css');
+﻿@import url('https://cdn.jsdelivr.net/npm/@wantedcomponents/wanted-sans@v1.0.3/packages/wanted-sans/fonts/webfonts/variable/split/WantedSansVariable.min.css');
 @font-face {
   font-family: 'RIDIBatang';
   src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_twelve@1.0/RIDIBatang.woff') format('woff');
@@ -8,12 +8,12 @@
 
 :root {
   font-family: 'Wanted Sans Variable', 'Wanted Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-  --color-olive-dark: #3B392E;
-  --color-olive: #5C664C;
-  --color-olive-light: #8BA175;
-  --color-dunk: #D98C63;
-  --color-bg-base: #EAE6D6; /* 한 톤 부드러운 베이스 */
-  --color-paper: #FAF8F0;
+  --color-olive-dark: #073642;
+  --color-olive: #586e75;
+  --color-olive-light: #859900;
+  --color-dunk: #cb4b16;
+  --color-bg-base: #eee8d5; /* 한 톤 부드러운 베이스 */
+  --color-paper: #fdf6e3;
 }
 
 body {
@@ -67,3 +67,4 @@ button {
 .progress-bar-fill {
   transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1);
 }
+
