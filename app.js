@@ -280,28 +280,29 @@ async function loadNextWord() {
   elements.userMeaningInput.value = "";
   elements.userMeaningInput.disabled = false;
   
-  setTimeout(() => {
-    elements.btnSubmit.classList.remove('hidden');
-    elements.btnSubmit.disabled = true;
-    elements.btnContainerNext.classList.add('hidden');
-    
-    // Front Loader 상태
-    elements.frontExamplesArea.classList.add('hidden');
-    elements.loadingIndicatorFront.classList.remove('hidden');
-    elements.loadingIndicatorFront.classList.add('flex');
-    
-    // Front Set
-    elements.wordFront.textContent = currentWord.word;
-    elements.wordFrontPos.textContent = currentWord.pos || "품사 없음";
-    elements.wordFrontHanja.textContent = currentWord.hanja && currentWord.hanja !== "고유어" ? `(${currentWord.hanja})` : "";
-    
-    // 이전에 Back에 떴던 내용 초기화
-    elements.wordBackMeaningBasic.textContent = currentWord.meaning;
-    elements.wordBackMeaningDetailed.textContent = "";
-    elements.wordBackHanjaBreakdown.textContent = "";
-    elements.hanjaBreakdownArea.classList.add('hidden');
-    elements.aiFeedback.textContent = "";
-  }, 150);
+  // 카드가 뒤집히는 애니메이션 중(약 150ms)에 텍스트가 바로 바뀌면 어색하므로 살짝 대기
+  await new Promise(resolve => setTimeout(resolve, 150));
+
+  elements.btnSubmit.classList.remove('hidden');
+  elements.btnSubmit.disabled = true;
+  elements.btnContainerNext.classList.add('hidden');
+  
+  // Front Loader 상태
+  elements.frontExamplesArea.classList.add('hidden');
+  elements.loadingIndicatorFront.classList.remove('hidden');
+  elements.loadingIndicatorFront.classList.add('flex');
+  
+  // Front Set
+  elements.wordFront.textContent = currentWord.word;
+  elements.wordFrontPos.textContent = currentWord.pos || "품사 없음";
+  elements.wordFrontHanja.textContent = currentWord.hanja && currentWord.hanja !== "고유어" ? `(${currentWord.hanja})` : "";
+  
+  // 이전에 Back에 떴던 내용 초기화
+  elements.wordBackMeaningBasic.textContent = currentWord.meaning;
+  elements.wordBackMeaningDetailed.textContent = "";
+  elements.wordBackHanjaBreakdown.textContent = "";
+  elements.hanjaBreakdownArea.classList.add('hidden');
+  elements.aiFeedback.textContent = "";
 
   isContextLoading = true;
   await fetchWordContext(currentWord);
