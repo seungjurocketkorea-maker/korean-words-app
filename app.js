@@ -322,7 +322,10 @@ async function fetchWordContext(wordObj) {
       })
     });
 
-    if (!response.ok) throw new Error(`Worker Error: ${response.status}`);
+    if (!response.ok) {
+      const errObj = await response.json().catch(() => ({}));
+      throw new Error(`Worker Error: ${response.status} - ${errObj.error || ''} \n${errObj.stack || ''}`);
+    }
     currentAiContext = await response.json(); 
 
     renderContextLoaded();
@@ -395,7 +398,10 @@ async function submitAnswer() {
       })
     });
 
-    if (!response.ok) throw new Error(`Worker Error: ${response.status}`);
+    if (!response.ok) {
+      const errObj = await response.json().catch(() => ({}));
+      throw new Error(`Worker Error: ${response.status} - ${errObj.error || ''} \n${errObj.stack || ''}`);
+    }
     gradeResultData = await response.json(); 
   } catch (error) {
     console.error("AI 채점 실패:", error);
