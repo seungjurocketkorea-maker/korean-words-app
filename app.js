@@ -381,17 +381,8 @@ async function loadNextWord() {
   await fetchWordContext(currentWord);
 }
 
-// 1차 통신: 예문과 해설 가져오기 (캐시 적용)
+// 1차 통신: 예문과 해설 가져오기 (이제 캐시는 백엔드 Worker의 KV가 담당합니다)
 async function fetchWordContext(wordObj) {
-  const wordId = wordObj.id;
-  
-  // 이미 캐싱된 데이터가 있다면 즉시 반환 (통신 X)
-  if (userProgress[wordId] && userProgress[wordId].aiContext) {
-    currentAiContext = userProgress[wordId].aiContext;
-    renderContextLoaded();
-    return;
-  }
-
   try {
     const response = await fetch(WORKER_URL, {
       method: "POST",
@@ -411,19 +402,6 @@ async function fetchWordContext(wordObj) {
     }
     const data = await response.json();
     currentAiContext = data;
-
-    // 통신 완료 후 로컬에 데이터 백업 (캐시 저장)
-    if (!userProgress[wordId]) {
-      userProgress[wordId] = { status: 'pending', errCount: 0, nextReview: 0 };
-    }
-    userProgress[wordId].aiContext = currentAiContext;
-    
-    // 할당량 초과 시 예외처리
-    try {
-      saveProgress(); 
-    } catch (quotaError) {
-      console.warn("브라우저 데이터 한도에 도달하여 일부 단어의 AI 데이터가 임시 캐싱되었습니다.", quotaError);
-    }
 
     renderContextLoaded();
   } catch (error) {
@@ -581,49 +559,3 @@ function flipCardAndShowFeedback(aiGrade) {
 
 // 앱 실행
 document.addEventListener('DOMContentLoaded', initApp);
-
-// ==========================================
-// 5. 데이터 백업 및 복원 (Export / Import)
-// ==========================================
-function exportData() {
-  const dataStr = localStorage.getItem(STORAGE_KEY) || "{}";
-  const blob = new Blob([dataStr], { type: "application/json" });
-  const url = URL.createObjectURL(blob);
-  
-  const a = document.createElement('a');
-  a.href = url;
-  
-  const today = new Date();
-  const dateStr = `${today.getFullYear()}${(today.getMonth()+1).toString().padStart(2, '0')}${today.getDate().toString().padStart(2, '0')}`;
-  a.download = `korean_words_backup_${dateStr}.json`;
-  
-  document.body.appendChild(a);
-  a.click();
-  document.body.removeChild(a);
-  URL.revokeObjectURL(url);
-}
-
-function importData(event) {
-  const file = event.target.files[0];
-  if (!file) return;
-  
-  const reader = new FileReader();
-  reader.onload = (e) => {
-    try {
-      const parsed = JSON.parse(e.target.result);
-      if (typeof parsed === 'object' && parsed !== null) {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(parsed));
-        userProgress = parsed;
-        alert("데이터를 성공적으로 불러왔습니다! 화면을 새로고침합니다.");
-        location.reload();
-      } else {
-        alert("올바른 백업 파일 형식이 아닙니다.");
-      }
-    } catch(err) {
-      alert("파일을 읽거나 분석하는 중 오류가 발생했습니다.");
-      console.error(err);
-    }
-  };
-  reader.readAsText(file);
-  event.target.value = ''; // 동일한 파일 다시 선택 가능하도록 초기화
-}

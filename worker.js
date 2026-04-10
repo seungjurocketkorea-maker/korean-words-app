@@ -52,6 +52,22 @@ export default {
 
       let promptText = "";
 
+      // KV 데이터베이스 캐시 확인 로직 (context 요청인 경우에만)
+      if (action === "context" && env.AI_CACHE) {
+        try {
+          const cachedVal = await env.AI_CACHE.get(word);
+          if (cachedVal) {
+            // 서버 캐시에 있으면 즉시 반환 (제미나이 통신 X)
+            return new Response(cachedVal, {
+               status: 200,
+               headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+            });
+          }
+        } catch (kvError) {
+          console.error("KV read error:", kvError);
+        }
+      }
+
       if (action === "context") {
         // 1. 단어 정보 요청 (예문 3개 및 한자 풀이, 사려깊은 뉘앙스)
         promptText = `
@@ -129,6 +145,16 @@ JSON 파싱 가능한 형태로만 반환하라.
         resultObj = JSON.parse(cleanJsonStr);
       } catch (e) {
         throw new Error(`JSON Parse Error: ${e.message} \nRaw text: ${textOutput}`);
+      }
+
+      // context 요청이었다면 영구 데이터베이스(KV)에 저장
+      if (action === "context" && env.AI_CACHE) {
+        try {
+          // 캐시 저장
+          await env.AI_CACHE.put(word, JSON.stringify(resultObj));
+        } catch (kvError) {
+          console.error("KV put error:", kvError);
+        }
       }
 
       return new Response(JSON.stringify(resultObj), {
