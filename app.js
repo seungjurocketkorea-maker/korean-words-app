@@ -9,6 +9,13 @@ let isContextLoading = false;
 let isGradeLoading = false;
 let currentAiContext = null;
 
+// Review List State
+let reviewPoolAll = [];
+let currentReviewFilter = 'all'; 
+let currentReviewSearch = '';
+let currentReviewPage = 1;
+const REVIEW_ITEMS_PER_PAGE = 50;
+
 const levelNames = {
   'A': '1단계', 'B': '2단계', 'C': '3단계'
 };
@@ -57,7 +64,27 @@ const elements = {
   btnTabReview: document.getElementById('btn-tab-review'),
   
   reviewListSection: document.getElementById('review-list-section'),
-  reviewWordList: document.getElementById('review-word-list')
+  reviewWordList: document.getElementById('review-word-list'),
+  
+  // Review Controls
+  reviewSearchInput: document.getElementById('review-search-input'),
+  btnPrevPage: document.getElementById('btn-prev-page'),
+  btnNextPage: document.getElementById('btn-next-page'),
+  reviewPageInfo: document.getElementById('review-page-info'),
+  reviewFilterBtns: document.querySelectorAll('.review-filter-btn'),
+  
+  // Modal
+  wordDetailModal: document.getElementById('word-detail-modal'),
+  modalWordTitle: document.getElementById('modal-word-title'),
+  modalWordPos: document.getElementById('modal-word-pos'),
+  modalWordHanja: document.getElementById('modal-word-hanja'),
+  modalLoading: document.getElementById('modal-loading'),
+  modalContent: document.getElementById('modal-content'),
+  modalMeaningBasic: document.getElementById('modal-meaning-basic'),
+  modalExamples: document.getElementById('modal-examples'),
+  modalMeaningDetailed: document.getElementById('modal-meaning-detailed'),
+  modalHanjaArea: document.getElementById('modal-hanja-area'),
+  modalHanjaBreakdown: document.getElementById('modal-hanja-breakdown')
 };
 
 // ==========================================
@@ -111,6 +138,42 @@ function initApp() {
       e.preventDefault();
       submitAnswer();
     }
+  });
+
+  // Review List Event Listeners
+  elements.reviewSearchInput.addEventListener('input', (e) => {
+    currentReviewSearch = e.target.value.trim().toLowerCase();
+    currentReviewPage = 1;
+    renderReviewList();
+  });
+
+  elements.reviewFilterBtns.forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      // 탭 스타일 변경
+      elements.reviewFilterBtns.forEach(b => {
+        b.classList.remove('active', 'bg-[#8ba175]', 'text-white');
+        b.classList.add('bg-white', 'text-stone-600');
+      });
+      const target = e.currentTarget;
+      target.classList.remove('bg-white', 'text-stone-600');
+      target.classList.add('active', 'bg-[#8ba175]', 'text-white');
+      
+      currentReviewFilter = target.dataset.filter;
+      currentReviewPage = 1;
+      renderReviewList();
+    });
+  });
+
+  elements.btnPrevPage.addEventListener('click', () => {
+    if (currentReviewPage > 1) {
+      currentReviewPage--;
+      renderReviewList();
+    }
+  });
+
+  elements.btnNextPage.addEventListener('click', () => {
+    currentReviewPage++;
+    renderReviewList();
   });
 }
 
@@ -175,24 +238,59 @@ function startReviewCards() {
 }
 
 function populateReviewList() {
-  const pool = getReviewPool();
-  elements.reviewWordList.innerHTML = '';
+  reviewPoolAll = getReviewPool();
+  currentReviewPage = 1; // 탭 진입 시 페이지 초기화
   
-  if (pool.length === 0) {
-     elements.reviewWordList.innerHTML = '<li class="p-6 text-center text-stone-500 text-sm font-medium">아직 학습한 단어가 없습니다. 먼저 등급 탭에서 단어를 학습해보세요!</li>';
-     return;
-  }
-  
-  // 시급한 복습 단어(틀린단어)가 맨 위로 오도록 정렬
-  pool.sort((a,b) => {
+  // 시급한 복습 단어(틀린단어)가 앞쪽에 오도록 1차 정렬 (상태 > 단어명)
+  reviewPoolAll.sort((a,b) => {
      const statusOrder = { 'wrong': 0, 'learning': 1, 'mastered': 2 };
      const sa = userProgress[a.id]?.status || 'mastered';
      const sb = userProgress[b.id]?.status || 'mastered';
      if(statusOrder[sa] !== statusOrder[sb]) return statusOrder[sa] - statusOrder[sb];
      return a.word.localeCompare(b.word);
   });
+
+  renderReviewList();
+}
+
+function renderReviewList() {
+  let filtered = reviewPoolAll;
   
-  pool.forEach(w => {
+  // State Filter
+  if (currentReviewFilter !== 'all') {
+    filtered = filtered.filter(w => userProgress[w.id]?.status === currentReviewFilter);
+  }
+  
+  // Search Filter
+  if (currentReviewSearch !== '') {
+    filtered = filtered.filter(w => 
+      w.word.toLowerCase().includes(currentReviewSearch) || 
+      w.meaning.toLowerCase().includes(currentReviewSearch)
+    );
+  }
+
+  // Pagination
+  const totalPages = Math.max(1, Math.ceil(filtered.length / REVIEW_ITEMS_PER_PAGE));
+  if (currentReviewPage > totalPages) {
+    currentReviewPage = totalPages;
+  }
+  
+  const startIndex = (currentReviewPage - 1) * REVIEW_ITEMS_PER_PAGE;
+  const paginated = filtered.slice(startIndex, startIndex + REVIEW_ITEMS_PER_PAGE);
+
+  // Update UI Pagination Info
+  elements.reviewPageInfo.textContent = `${currentReviewPage} / ${totalPages}`;
+  elements.btnPrevPage.disabled = currentReviewPage <= 1;
+  elements.btnNextPage.disabled = currentReviewPage >= totalPages;
+
+  elements.reviewWordList.innerHTML = '';
+  
+  if (filtered.length === 0) {
+     elements.reviewWordList.innerHTML = '<li class="p-6 text-center text-stone-500 text-sm font-medium">검색된 단어가 없습니다. 먼저 등급 탭에서 단어를 학습해보세요!</li>';
+     return;
+  }
+  
+  paginated.forEach(w => {
      const st = userProgress[w.id]?.status;
      let dot = '🟢';
      let badgeColor = 'text-green-700 bg-green-100/80';
@@ -205,7 +303,10 @@ function populateReviewList() {
      }
      
      const li = document.createElement('li');
-     li.className = 'flex flex-col sm:flex-row sm:items-center justify-between p-4 bg-[#FAF8F0]/80 border border-[#E0DBC5] rounded-xl shadow-sm hover:shadow-md transition-shadow gap-2';
+     li.className = 'flex flex-col sm:flex-row sm:items-center justify-between p-4 bg-[#FAF8F0]/80 border border-[#E0DBC5] rounded-xl shadow-sm hover:shadow-md transition-all gap-2 cursor-pointer border-l-4 hover:-translate-y-0.5';
+     li.style.borderLeftColor = st === 'wrong' ? '#EF4444' : (st === 'learning' ? '#F59E0B' : '#10B981');
+     li.onclick = () => openWordModal(w); // 클릭 시 모달창 띄우기
+
      li.innerHTML = `
         <div class="flex items-center gap-3 w-full sm:w-auto">
           <span class="text-[0.65rem] px-2 py-1 rounded-md font-bold whitespace-nowrap border border-white/40 shadow-sm ${badgeColor}">${dot} ${badgeText}</span>
@@ -224,6 +325,100 @@ function populateReviewList() {
      elements.reviewWordList.appendChild(li);
   });
 }
+
+// ==========================================
+// 2.5 단어 상세 설명 모달창 (Modal)
+// ==========================================
+async function openWordModal(wObj) {
+  const modal = elements.wordDetailModal;
+  modal.classList.remove('hidden');
+  
+  // Tailwind 애니메이션을 위해 아주 살짝 대기 후 opacity 1
+  setTimeout(() => {
+    modal.classList.remove('opacity-0');
+    modal.firstElementChild.classList.remove('scale-95');
+    modal.firstElementChild.classList.add('scale-100');
+  }, 10);
+
+  // 헤더 세팅
+  elements.modalWordTitle.textContent = wObj.word;
+  elements.modalWordPos.textContent = wObj.pos;
+  elements.modalWordHanja.textContent = wObj.hanja && wObj.hanja !== '고유어' ? `(${wObj.hanja})` : '';
+
+  // 컨텐츠 숨기고 로딩 띄우기
+  elements.modalContent.classList.add('hidden');
+  elements.modalLoading.classList.remove('hidden');
+
+  try {
+    const response = await fetch(WORKER_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        action: "context",
+        word: wObj.word,
+        meaning: wObj.meaning,
+        pos: wObj.pos,
+        hanja: wObj.hanja
+      })
+    });
+
+    if (!response.ok) throw new Error("네트워크 오류");
+    const data = await response.json();
+
+    // 데이터 주입
+    elements.modalMeaningBasic.textContent = wObj.meaning || data.basicMeaning || data.detailedMeaning || "정보가 없습니다.";
+    elements.modalMeaningDetailed.textContent = data.detailedMeaning || "정보가 없습니다.";
+    
+    // 한자 어원
+    if (data.hanjaBreakdown && data.hanjaBreakdown.trim() !== "") {
+      elements.modalHanjaBreakdown.textContent = data.hanjaBreakdown;
+      elements.modalHanjaArea.classList.remove('hidden');
+    } else {
+      elements.modalHanjaArea.classList.add('hidden');
+    }
+
+    // 예문
+    elements.modalExamples.innerHTML = '';
+    if (data.examples && data.examples.length > 0) {
+      data.examples.forEach(ex => {
+        const li = document.createElement('li');
+        li.innerHTML = ex;
+        elements.modalExamples.appendChild(li);
+      });
+    } else {
+      elements.modalExamples.innerHTML = '<li>예문이 없습니다.</li>';
+    }
+
+  } catch (error) {
+    console.error(error);
+    elements.modalMeaningBasic.textContent = wObj.meaning || "사전 정보를 불러올 수 없습니다.";
+    elements.modalMeaningDetailed.textContent = "서버 통신에 실패하여 상세 정보를 불러오지 못했습니다.";
+    elements.modalExamples.innerHTML = '<li>네트워크 연결을 확인해주세요.</li>';
+    elements.modalHanjaArea.classList.add('hidden');
+  }
+
+  // 로딩 숨기고 컨텐츠 띄우기
+  elements.modalLoading.classList.add('hidden');
+  elements.modalContent.classList.remove('hidden');
+}
+
+function closeWordModal() {
+  const modal = elements.wordDetailModal;
+  modal.classList.add('opacity-0');
+  modal.firstElementChild.classList.remove('scale-100');
+  modal.firstElementChild.classList.add('scale-95');
+  
+  setTimeout(() => {
+    modal.classList.add('hidden');
+  }, 300);
+}
+
+// 모달 외부 영억 클릭 시 닫기
+document.getElementById('word-detail-modal').addEventListener('click', (e) => {
+  if (e.target === e.currentTarget) {
+    closeWordModal();
+  }
+});
 
 function getReviewPool() {
   // 모든 단어 풀에서 기록이 존재하는(한번이라도 제출한) 단어만 끌어모음
