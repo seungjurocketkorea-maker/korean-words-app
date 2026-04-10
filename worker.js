@@ -5,15 +5,23 @@
 
 export default {
   async fetch(request, env, ctx) {
-    // 1. CORS 처리: 브라우저에서 직접 호출할 수 있도록 허용
+    // 1. CORS 처리
     const corsHeaders = {
       'Access-Control-Allow-Origin': '*',
-      'Access-Control-Allow-Methods': 'POST, OPTIONS',
+      'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
       'Access-Control-Allow-Headers': 'Content-Type',
     };
 
     if (request.method === 'OPTIONS') {
       return new Response(null, { headers: corsHeaders });
+    }
+
+    // GET 요청 시 (사용자가 브라우저로 사이트에 접속했을 때)
+    if (request.method === 'GET') {
+      if (env.ASSETS) {
+        return env.ASSETS.fetch(request); // index.html 등 정적 웹사이트 파일 제공
+      }
+      return new Response("API is running", { status: 200, headers: corsHeaders });
     }
 
     if (request.method !== 'POST') {
