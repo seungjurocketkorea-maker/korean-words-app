@@ -52,9 +52,9 @@
     <section id="card-area" class="flex flex-col items-center">
       
       <div id="word-card-container" class="perspective-1000 w-full group">
-        <div id="word-card-inner" class="card-inner transform-style-3d relative w-full h-[420px] shadow-xl rounded-3xl group-hover:shadow-2xl transition-shadow duration-300">
+        <div id="word-card-inner" class="card-inner transform-style-3d relative w-full min-h-[420px] grid shadow-xl rounded-3xl group-hover:shadow-2xl transition-shadow duration-300">
           
-          <div class="backface-hidden absolute inset-0 bg-[#FAF8F0] rounded-3xl flex flex-col justify-start items-center p-8 border border-[#E0DBC5]">
+          <div class="col-start-1 row-start-1 backface-hidden h-full bg-[#FAF8F0] rounded-3xl flex flex-col justify-start items-center p-8 border border-[#E0DBC5]">
             <h3 id="word-front" class="text-3xl font-bold font-serif text-[#3B392E] mt-2 mb-1">단어</h3>
             <p id="word-front-hanja" class="text-base text-[#8A887A] font-medium tracking-widest mb-1"></p>
             <p id="word-front-hanja-meaning" class="text-xs text-[#6A7B54] font-medium tracking-wide mb-3"></p>
@@ -69,7 +69,7 @@
             </div>
           </div>
 
-          <div class="rotate-y-180 backface-hidden absolute inset-0 glass-panel rounded-3xl flex flex-col p-6 border-t border-l border-white/80 bg-gradient-to-br from-[#EAE6D6]/30 to-[#FAF8F0] overflow-y-auto">
+          <div class="col-start-1 row-start-1 rotate-y-180 backface-hidden h-full glass-panel rounded-3xl flex flex-col p-6 border-t border-l border-white/80 bg-gradient-to-br from-[#EAE6D6]/30 to-[#FAF8F0]">
             <div class="flex flex-col h-full">
               <div id="ai-judgment-area" class="px-4 py-3 rounded-xl mb-4 bg-white/60">
                 <p id="ai-judgment-text" class="font-bold text-lg text-[#3B392E]">채점 결과</p>
