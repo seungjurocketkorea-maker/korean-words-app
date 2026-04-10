@@ -9,6 +9,17 @@ let isContextLoading = false;
 let isGradeLoading = false;
 let currentAiContext = null;
 
+const levelNames = {
+  'A': '1단계', 'B': '2단계', 'C': '3단계'
+};
+
+const posMap = {
+  '감': '감탄사', '고': '고유 명사', '관': '관형사',
+  '대': '대명사', '동': '동사', '명': '명사',
+  '보': '보조 용언', '부': '부사', '불': '분석 불능',
+  '수': '수사', '의': '의존 명사', '형': '형용사'
+};
+
 const elements = {
   levelTabs: document.getElementById('level-tabs'),
   statsSection: document.getElementById('stats-section'),
@@ -57,6 +68,23 @@ function initApp() {
     return;
   }
 
+  // 실시간 전처리 가공 (숫자제거, 품사 매핑, 빈도 랭킹 정렬)
+  Object.keys(wordsDB).forEach(level => {
+    wordsDB[level].forEach(w => {
+      // "속01", "버리다01" -> "속", "버리다"
+      w.word = w.word.replace(/\d+$/, '');
+      // 품사 치환
+      if (w.pos in posMap) {
+        w.pos = posMap[w.pos];
+      }
+      // ID를 기준으로 정수 랭크 추출 ('word_1195' -> 1195)
+      w.rank = parseInt(w.id.replace('word_', ''), 10);
+      if (isNaN(w.rank)) w.rank = 999999; 
+    });
+    // 빈도수 숫자가 낮을수록(순위가 높을수록) 앞쪽으로 О름차순 정렬
+    wordsDB[level].sort((a, b) => a.rank - b.rank);
+  });
+
   const levels = Object.keys(wordsDB).sort();
 
   levels.forEach(level => {
@@ -65,7 +93,8 @@ function initApp() {
     const btn = document.createElement('button');
     btn.className = `px-6 py-2 rounded-full font-bold text-sm transition-all border shadow-sm tab-btn bg-white/60 text-stone-500 border-[#D6D2BF] hover:bg-white`;
     btn.dataset.level = level;
-    btn.textContent = `${level} 등급`;
+    // 맵핑된 이름 출력, 없으면 기존 이름
+    btn.textContent = levelNames[level] || `${level} 등급`;
     btn.addEventListener('click', () => selectLevel(level));
     elements.levelTabs.appendChild(btn);
   });
@@ -143,7 +172,8 @@ function updateStats() {
     document.getElementById('stats-title').textContent = "복습장 학습 현황 (누적)";
   } else {
     words = wordsDB[currentLevel] || [];
-    document.getElementById('stats-title').textContent = "현재 등급 학습 현황";
+    const displayName = levelNames[currentLevel] || `${currentLevel} 등급`;
+    document.getElementById('stats-title').textContent = `${displayName} 학습 현황`;
   }
   
   let pendingCount = 0;
@@ -212,13 +242,19 @@ function getNextWordToStudy() {
     else if (masteredPool.length > 0) candidateGroup = masteredPool;
   }
   
-  // 그래도 없으면, 시간 무시하고 강제로 뽑음
+  // 그래도 없으면, 랜덤 강제가 아니라 풀의 앞쪽(빈도수 1등)을 뽑음
   if (candidateGroup.length === 0) {
-    candidateGroup = pool; // 랜덤으로 아무거나
+    candidateGroup = pool; 
   }
 
-  const randomIndex = Math.floor(Math.random() * candidateGroup.length);
-  return candidateGroup[randomIndex];
+  if (candidateGroup === activePool || candidateGroup === pool) {
+    // 한 번도 안 본 단어 그룹이라면, 랜덤이 아니라 무조건 순위가 빠른 순서부터(index 0) 먼저 뽑음 (정렬 완료된 상태)
+    return candidateGroup[0];
+  } else {
+    // 복습 단어(틀린단어, 학습중) 그룹이면 아무렇게나 하나를 섞어서 뽑음
+    const randomIndex = Math.floor(Math.random() * candidateGroup.length);
+    return candidateGroup[randomIndex];
+  }
 }
 
 // ==========================================
