@@ -59,8 +59,8 @@ export default {
           if (cachedVal) {
             // 서버 캐시에 있으면 즉시 반환 (제미나이 통신 X)
             return new Response(cachedVal, {
-               status: 200,
-               headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+              status: 200,
+              headers: { ...corsHeaders, 'Content-Type': 'application/json' }
             });
           }
         } catch (kvError) {
@@ -80,7 +80,7 @@ export default {
 
 이 정보를 바탕으로 학생이 단어를 완벽히 이해할 수 있도록 다음 4가지 정보를 반드시 JSON 형식으로만 반환해줘. 다른 말은 절대 추가하지 마.
 
-1. "basicMeaning": 해당 단어의 가장 정확하고 핵심적인 사전적 뜻 1~2줄.
+1. "basicMeaning": 표준국어대사전, 고려대한국어대사전, 한국어기초사전 등 여러 유명 국어 사전의 정의를 종합하여, 해당 단어의 사전적 뜻을 초보자도 이해하기 쉬운 말로 아주 자세하게 풀어서 설명해줘.
 2. "examples": 이 단어가 아주 자연스럽게 사용된 실생활/수능 수준의 예문 3개. (각 예문 안에서 해당 단어 부분은 반드시 HTML <strong> 태그로 감싸야 해!)
 3. "detailedMeaning": 이 단어의 숨겨진 뉘앙스나 언제 주로 쓰이는지 부드럽고 친절하게 설명해줘.
 4. "hanjaBreakdown": 단어가 한자어라면 각 한자의 뜻과 음을 쪼개서 설명하고, 왜 그런 뜻이 되었는지 어원을 설명해줘. 순우리말(고유어)라면 어원이나 외우기 쉬운 연상법(Mnemonic)을 알려줘.
@@ -92,7 +92,7 @@ JSON 파싱 가능한 형태로만 반환하라.
         if (!userAnswer) {
           return new Response(JSON.stringify({ error: 'Missing userAnswer for grading' }), { status: 400, headers: corsHeaders });
         }
-        
+
         promptText = `
 너는 고등학생의 수능 국어/고급 어휘 학습을 도와주는 친절한 전담 국어교사야.
 문제로 나온 단어는 "${word}" 이며, (해당 단어의 원래 뜻은 "${meaning || ''}" 이야).
@@ -120,9 +120,9 @@ JSON 파싱 가능한 형태로만 반환하라.
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           contents: [{ parts: [{ text: promptText }] }],
-          generationConfig: { 
+          generationConfig: {
             temperature: 0.7,
-            responseMimeType: "application/json" 
+            responseMimeType: "application/json"
           }
         })
       });
@@ -133,13 +133,13 @@ JSON 파싱 가능한 형태로만 반환하라.
       }
 
       const data = await geminiResponse.json();
-      
+
       if (!data.candidates || data.candidates.length === 0) {
-         throw new Error(`No candidates in response. Data: ${JSON.stringify(data)}`);
+        throw new Error(`No candidates in response. Data: ${JSON.stringify(data)}`);
       }
 
       const textOutput = data.candidates[0].content.parts[0].text;
-      
+
       let resultObj;
       try {
         const cleanJsonStr = textOutput.replace(/```json/g, '').replace(/```/g, '').trim();
