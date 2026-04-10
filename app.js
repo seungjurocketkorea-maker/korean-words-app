@@ -324,9 +324,9 @@ function renderReviewList() {
           </div>
         </div>
         
-        <!-- Delete Button (Olive Dunk 톤온톤 스타일, 데스크톱 호버 시 나타남) -->
-        <button class="absolute top-3 right-3 sm:top-1/2 sm:-translate-y-1/2 p-2 text-[#D6D2BF] bg-[#FAF8F0] border border-transparent hover:border-[#E0DBC5] hover:bg-white hover:text-[#D98C63] transition-all rounded-xl sm:opacity-0 sm:group-hover:opacity-100 shadow-sm hover:shadow-md" onclick="deleteWordFromReview(event, '${w.id}')" title="이 단어 기록 삭제">
-          <svg class="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+        <!-- Delete Button (항상 표시, 연한 색깔에서 호버 시 강조됨) -->
+        <button class="absolute top-3 right-3 sm:top-1/2 sm:-translate-y-1/2 p-2 text-stone-300 hover:text-red-500 bg-transparent hover:bg-white transition-all rounded-full z-10 hover:shadow-sm" onclick="deleteWordFromReview(event, '${w.id}')" title="이 단어 기록 지우기">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
         </button>
      `;
      elements.reviewWordList.appendChild(li);
