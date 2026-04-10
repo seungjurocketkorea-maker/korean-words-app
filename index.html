@@ -1,9 +1,9 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="ko">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>국어 단어 마스터 1000 - AI & Review Edition</title>
+  <title>AI 한국어 단어 1,000</title>
   
   <script src="https://unpkg.com/@tailwindcss/browser@4"></script>
   <link rel="stylesheet" href="style.css" />
@@ -11,13 +11,13 @@
 <body class="min-h-screen flex flex-col items-center py-6 md:py-10 px-4 md:px-8">
 
   <header class="w-full max-w-2xl mb-8 text-center flex flex-col items-center">
-    <h1 class="text-3xl font-medium font-serif text-[#586e75] mb-2 tracking-tight">AI 단어장 마스터</h1>
+    <h1 class="text-3xl font-medium font-serif text-[#586e75] mb-2 tracking-tight">AI 한국어 단어 1,000</h1>
     
     <!-- Level Selector -->
     <div id="level-tabs" class="flex justify-center flex-wrap gap-2 mt-4">
       
       <!-- Review mode tab generated manually, others by JS -->
-      <button id="btn-tab-review" class="px-5 py-2 rounded-xl font-bold text-sm transition-colors border bg-[#fdf6e3] text-[#cb4b16] border-[#eee8d5] hover:bg-[#fdf6e3]" onclick="selectLevel('REVIEW')">
+      <button id="btn-tab-review" class="px-5 py-2 rounded-xl font-medium text-sm transition-colors border bg-[#fdf6e3] text-[#cb4b16] border-[#eee8d5] hover:bg-[#fdf6e3]" onclick="selectLevel('REVIEW')">
         📚 내 복습장
       </button>
 
@@ -28,8 +28,8 @@
   <main class="w-full max-w-2xl space-y-4">
     
     <section class="w-full flex justify-between items-center px-2 mb-4 hidden" id="stats-section">
-      <h2 id="stats-title" class="text-sm font-bold text-[#586e75]">현재 등급 학습 현황</h2>
-      <div class="flex gap-4 text-xs font-bold text-[#93a1a1]">
+      <h2 id="stats-title" class="text-sm font-medium text-[#586e75]">현재 등급 학습 현황</h2>
+      <div class="flex gap-4 text-xs font-medium text-[#93a1a1]">
         <span>미학습/틀림 <span id="stat-pending" class="text-[#5c594c] ml-1">0</span></span>
         <span>학습 중 <span id="stat-learning" class="text-[#2aa198] ml-1">0</span></span>
         <span>완벽 암기 <span id="stat-mastered" class="text-[#268bd2] ml-1">0</span></span>
@@ -41,7 +41,7 @@
       <div class="w-full bg-[#fdf6e3] rounded-2xl border border-[#eee8d5] p-6 md:p-8">
         <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8 gap-4">
           <h3 class="text-2xl font-medium font-serif text-[#586e75]">내가 공부한 단어 목록</h3>
-          <button id="btn-start-review-cards" class="px-6 py-3 bg-[#cb4b16] text-[#fdf6e3] rounded-xl font-bold text-sm hover:bg-[#dc322f] transition-colors flex items-center gap-2 border border-[#cb4b16]" onclick="startReviewCards()">
+          <button id="btn-start-review-cards" class="px-6 py-3 bg-[#cb4b16] text-[#fdf6e3] rounded-xl font-medium text-sm hover:bg-[#dc322f] transition-colors flex items-center gap-2 border border-[#cb4b16]" onclick="startReviewCards()">
             🔥 플래시카드 풀기 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
           </button>
         </div>
@@ -53,10 +53,10 @@
             <input type="text" id="review-search-input" placeholder="단어 검색하기..." class="w-full pl-10 pr-4 py-2 bg-[#fdf6e3] border border-[#93a1a1] rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#859900] transition-colors">
           </div>
           <div class="flex gap-2 overflow-x-auto custom-scrollbar pb-1 sm:pb-0">
-            <button class="review-filter-btn active px-3 py-1.5 bg-[#859900] text-[#fdf6e3] text-xs font-bold rounded-lg whitespace-nowrap transition-colors" data-filter="all">전체보기</button>
-            <button class="review-filter-btn px-3 py-1.5 bg-[#fdf6e3] text-stone-600 border border-[#93a1a1] text-xs font-bold rounded-lg whitespace-nowrap hover:bg-stone-50 transition-colors" data-filter="wrong">🔴 시급</button>
-            <button class="review-filter-btn px-3 py-1.5 bg-[#fdf6e3] text-stone-600 border border-[#93a1a1] text-xs font-bold rounded-lg whitespace-nowrap hover:bg-stone-50 transition-colors" data-filter="learning">🟡 학습중</button>
-            <button class="review-filter-btn px-3 py-1.5 bg-[#fdf6e3] text-stone-600 border border-[#93a1a1] text-xs font-bold rounded-lg whitespace-nowrap hover:bg-stone-50 transition-colors" data-filter="mastered">🟢 완벽</button>
+            <button class="review-filter-btn active px-3 py-1.5 bg-[#859900] text-[#fdf6e3] text-xs font-medium rounded-lg whitespace-nowrap transition-colors" data-filter="all">전체보기</button>
+            <button class="review-filter-btn px-3 py-1.5 bg-[#fdf6e3] text-stone-600 border border-[#93a1a1] text-xs font-medium rounded-lg whitespace-nowrap hover:bg-stone-50 transition-colors" data-filter="wrong">🔴 시급</button>
+            <button class="review-filter-btn px-3 py-1.5 bg-[#fdf6e3] text-stone-600 border border-[#93a1a1] text-xs font-medium rounded-lg whitespace-nowrap hover:bg-stone-50 transition-colors" data-filter="learning">🟡 학습중</button>
+            <button class="review-filter-btn px-3 py-1.5 bg-[#fdf6e3] text-stone-600 border border-[#93a1a1] text-xs font-medium rounded-lg whitespace-nowrap hover:bg-stone-50 transition-colors" data-filter="mastered">🟢 완벽</button>
           </div>
         </div>
         
@@ -69,7 +69,7 @@
         <!-- Pagination -->
         <div id="review-pagination" class="flex justify-center items-center gap-4 mt-6 pt-4 border-t border-[#93a1a1]">
           <button id="btn-prev-page" class="p-2 bg-[#fdf6e3] border border-[#93a1a1] rounded-lg text-stone-500 hover:bg-[#eee8d5] disabled:opacity-50 transition-colors"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg></button>
-          <span id="review-page-info" class="text-sm font-bold text-stone-700 font-serif">1 / 1</span>
+          <span id="review-page-info" class="text-sm font-medium text-stone-700 font-serif">1 / 1</span>
           <button id="btn-next-page" class="p-2 bg-[#fdf6e3] border border-[#93a1a1] rounded-lg text-stone-500 hover:bg-[#eee8d5] disabled:opacity-50 transition-colors"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg></button>
         </div>
       </div>
@@ -84,16 +84,16 @@
           <!-- Front Side -->
           <div class="col-start-1 row-start-1 backface-hidden h-full bg-[#fdf6e3] rounded-[2rem] flex flex-col justify-start items-center p-8 md:p-12 border-2 border-[#93a1a1]">
             <h3 id="word-front" class="text-5xl md:text-6xl font-medium font-serif text-[#586e75] mt-2 mb-4">단어</h3>
-            <p id="word-front-pos" class="text-xs font-bold text-[#268bd2] bg-[#eee8d5] px-3 py-1.5 rounded-lg mb-3 tracking-wide"></p>
-            <p id="word-front-hanja" class="text-sm text-[#859900] font-bold tracking-widest mb-6"></p>
+            <p id="word-front-pos" class="text-xs font-medium text-[#268bd2] bg-[#eee8d5] px-3 py-1.5 rounded-lg mb-3 tracking-wide"></p>
+            <p id="word-front-hanja" class="text-sm text-[#859900] font-medium tracking-widest mb-6"></p>
             
             <div id="loading-indicator-front" class="flex w-full flex-col items-center justify-center mt-3 mb-3 text-[#859900]">
               <div class="w-8 h-8 border-4 border-[#859900] border-t-transparent rounded-full animate-spin mb-3"></div>
-              <p class="text-xs font-bold animate-pulse">AI가 실생활 예문을 만들고 있어요...</p>
+              <p class="text-xs font-medium animate-pulse">AI가 실생활 예문을 만들고 있어요...</p>
             </div>
 
             <div id="front-examples-area" class="w-full hidden flex-col items-center mb-8">
-              <p class="text-xs text-[#cb4b16] font-bold mb-3 uppercase tracking-widest">💡 예문을 보고 뜻을 유추해보세요</p>
+              <p class="text-xs text-[#cb4b16] font-medium mb-3 uppercase tracking-widest">💡 예문을 보고 뜻을 유추해보세요</p>
               <ul id="word-front-examples" class="text-sm md:text-base text-left w-full text-stone-700 bg-[#eee8d5] border border-[#93a1a1] p-5 rounded-2xl space-y-3 break-keep leading-relaxed list-none">
               </ul>
             </div>
@@ -103,7 +103,7 @@
             
             <div id="loading-indicator-grade" class="hidden w-full flex-col items-center justify-center mt-6 text-[#cb4b16]">
               <div class="w-8 h-8 border-4 border-[#cb4b16] border-t-transparent rounded-full animate-spin mb-3"></div>
-              <p class="text-xs font-bold animate-pulse">선생님이 답안을 채점하고 있어요...</p>
+              <p class="text-xs font-medium animate-pulse">선생님이 답안을 채점하고 있어요...</p>
             </div>
           </div>
 
@@ -114,24 +114,24 @@
               <!-- AI Judgment Feedback -->
               <div id="ai-judgment-area" class="px-5 py-4 rounded-2xl mb-2 bg-[#eee8d5] border border-[#93a1a1]">
                 <div class="flex items-center gap-3 mb-2">
-                  <span id="ai-judgment-badge" class="px-2.5 py-1.5 text-[0.65rem] font-bold rounded-lg text-[#fdf6e3] bg-gray-400 uppercase tracking-widest">판정</span>
-                  <p class="font-bold text-sm text-[#586e75]">AI 선생님의 채점 피드백</p>
+                  <span id="ai-judgment-badge" class="px-2.5 py-1.5 text-[0.65rem] font-medium rounded-lg text-[#fdf6e3] bg-gray-400 uppercase tracking-widest">판정</span>
+                  <p class="font-medium text-sm text-[#586e75]">AI 선생님의 채점 피드백</p>
                 </div>
                 <p id="ai-feedback" class="text-sm text-stone-700 mt-2 break-keep leading-relaxed font-medium">피드백이 표시됩니다.</p>
               </div>
 
               <div class="bg-[#fdf6e3] rounded-2xl p-5 border border-[#eee8d5]">
-                <p class="text-xs text-[#859900] font-bold mb-2 uppercase tracking-widest pl-1">사전적 의미</p>
-                <p id="word-back-meaning-basic" class="text-base font-bold text-stone-800 break-keep leading-snug pl-1"></p>
+                <p class="text-xs text-[#859900] font-medium mb-2 uppercase tracking-widest pl-1">사전적 의미</p>
+                <p id="word-back-meaning-basic" class="text-base font-medium text-stone-800 break-keep leading-snug pl-1"></p>
               </div>
 
               <div class="bg-[#fdf6e3] rounded-2xl p-5 border border-[#eee8d5]">
-                <p class="text-xs text-[#859900] font-bold mb-2 uppercase tracking-widest pl-1">상세 해설 & 뉘앙스</p>
+                <p class="text-xs text-[#859900] font-medium mb-2 uppercase tracking-widest pl-1">상세 해설 & 뉘앙스</p>
                 <p id="word-back-meaning-detailed" class="text-sm font-medium text-stone-700 leading-loose break-keep pl-1"></p>
               </div>
               
               <div id="hanja-breakdown-area" class="bg-[#859900]/10 rounded-2xl p-5 border border-[#859900]/30 hidden mt-2">
-                <p class="text-xs text-[#586e75] font-bold mb-2 uppercase tracking-widest pl-1">한자 분해 및 어원</p>
+                <p class="text-xs text-[#586e75] font-medium mb-2 uppercase tracking-widest pl-1">한자 분해 및 어원</p>
                 <p id="word-back-hanja-breakdown" class="text-sm font-medium text-[#414A35] leading-loose break-keep pl-1"></p>
               </div>
             </div>
@@ -143,13 +143,13 @@
       <div class="mt-8 w-full max-w-sm flex flex-col gap-4">
         
         <!-- Action Button (Front) -->
-        <button id="btn-submit" class="w-full py-4 rounded-2xl bg-[#859900] text-[#fdf6e3] font-bold hover:bg-[#2aa198] transition-colors active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed">
+        <button id="btn-submit" class="w-full py-4 rounded-2xl bg-[#859900] text-[#fdf6e3] font-medium hover:bg-[#2aa198] transition-colors active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed">
           답안 제출하고 자동 채점
         </button>
 
         <!-- Next Button (Back) -->
         <div id="btn-container-next" class="hidden w-full">
-          <button id="btn-next" onclick="loadNextWord()" class="w-full py-4 bg-[#cb4b16] text-[#fdf6e3] rounded-2xl font-bold hover:bg-[#dc322f] transition-colors active:scale-95 flex items-center justify-center gap-2 border border-[#cb4b16]">
+          <button id="btn-next" onclick="loadNextWord()" class="w-full py-4 bg-[#cb4b16] text-[#fdf6e3] rounded-2xl font-medium hover:bg-[#dc322f] transition-colors active:scale-95 flex items-center justify-center gap-2 border border-[#cb4b16]">
             다시 묻기 / 다음 단어 
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
           </button>
@@ -178,9 +178,9 @@
         <div>
           <div class="flex items-center gap-3 mb-2">
             <h3 id="modal-word-title" class="text-4xl font-medium font-serif text-[#586e75]">단어</h3>
-            <span id="modal-word-pos" class="text-xs font-bold text-[#268bd2] bg-[#eee8d5] px-2 py-1 rounded-md tracking-wide">품사</span>
+            <span id="modal-word-pos" class="text-xs font-medium text-[#268bd2] bg-[#eee8d5] px-2 py-1 rounded-md tracking-wide">품사</span>
           </div>
-          <p id="modal-word-hanja" class="text-sm text-[#859900] font-bold tracking-widest"></p>
+          <p id="modal-word-hanja" class="text-sm text-[#859900] font-medium tracking-widest"></p>
         </div>
         <button onclick="closeWordModal()" class="p-3 text-stone-400 hover:text-stone-700 bg-[#fdf6e3] hover:bg-[#eee8d5] rounded-full transition-colors flex-shrink-0">
           <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
@@ -193,33 +193,33 @@
         <!-- Loading State inside Modal -->
         <div id="modal-loading" class="flex flex-col items-center justify-center py-20 hidden">
           <div class="w-10 h-10 border-4 border-[#859900] border-t-transparent rounded-full animate-spin mb-4"></div>
-          <p class="text-sm font-bold text-[#859900] animate-pulse">AI 선생님의 상세 해설을 불러오는 중입니다...</p>
+          <p class="text-sm font-medium text-[#859900] animate-pulse">AI 선생님의 상세 해설을 불러오는 중입니다...</p>
         </div>
         
         <!-- Content State -->
         <div id="modal-content" class="space-y-6">
           <!-- Basic Meaning -->
           <div class="bg-[#fdf6e3] rounded-2xl p-6 border border-[#eee8d5] shadow-sm transform hover:-translate-y-0.5 transition-transform">
-            <p class="text-xs text-[#859900] font-bold mb-2 pl-1 tracking-widest">사전적 의미</p>
-            <p id="modal-meaning-basic" class="text-lg font-bold text-[#073642] break-keep leading-snug pl-1"></p>
+            <p class="text-xs text-[#859900] font-medium mb-2 pl-1 tracking-widest">사전적 의미</p>
+            <p id="modal-meaning-basic" class="text-lg font-medium text-[#073642] break-keep leading-snug pl-1"></p>
           </div>
   
           <!-- Examples -->
           <div>
-            <p class="text-xs text-[#cb4b16] font-bold mb-3 tracking-widest pl-2">💡 실생활 예문</p>
+            <p class="text-xs text-[#cb4b16] font-medium mb-3 tracking-widest pl-2">💡 실생활 예문</p>
             <ul id="modal-examples" class="text-sm text-left w-full text-stone-700 bg-[#fdf6e3] border border-[#eee8d5] p-6 rounded-2xl space-y-4 break-keep leading-relaxed list-none shadow-sm">
             </ul>
           </div>
   
           <!-- Detailed Meaning -->
           <div class="bg-[#fdf6e3] rounded-2xl p-6 border border-[#eee8d5] shadow-sm">
-            <p class="text-xs text-[#859900] font-bold mb-2 pl-1 tracking-widest">상세 해설 & 뉘앙스</p>
+            <p class="text-xs text-[#859900] font-medium mb-2 pl-1 tracking-widest">상세 해설 & 뉘앙스</p>
             <p id="modal-meaning-detailed" class="text-sm font-medium text-[#586e75] leading-loose break-keep pl-1"></p>
           </div>
           
           <!-- Hanja -->
           <div id="modal-hanja-area" class="bg-[#859900]/10 rounded-2xl p-6 border border-[#859900]/30 hidden mt-2">
-            <p class="text-xs text-[#586e75] font-bold mb-2 pl-1 tracking-widest">한자 분해 및 어원</p>
+            <p class="text-xs text-[#586e75] font-medium mb-2 pl-1 tracking-widest">한자 분해 및 어원</p>
             <p id="modal-hanja-breakdown" class="text-sm font-medium text-[#414A35] leading-loose break-keep pl-1"></p>
           </div>
         </div>

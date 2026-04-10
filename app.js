@@ -1,4 +1,4 @@
-﻿const STORAGE_KEY = 'korean_words_progress_v2';
+const STORAGE_KEY = 'korean_words_progress_v2';
 const WORKER_URL = "https://korean-words.seungju-rocketkorea.workers.dev/api/check";
 
 let userProgress = {}; // { 'word_1195': { status: 'wrong|learning|mastered', nextReview: timestamp, errCount: 0 } }
@@ -121,7 +121,7 @@ function initApp() {
     if(level === 'REVIEW') return; // 방어 코드
 
     const btn = document.createElement('button');
-    btn.className = `px-6 py-2 rounded-full font-bold text-sm transition-all border tab-btn bg-[#fdf6e3] text-stone-500 border-[#93a1a1] hover:bg-[#fdf6e3]`;
+    btn.className = `px-6 py-2 rounded-full font-medium text-sm transition-all border tab-btn bg-[#fdf6e3] text-stone-500 border-[#93a1a1] hover:bg-[#fdf6e3]`;
     btn.dataset.level = level;
     // 맵핑된 이름 출력, 없으면 기존 이름
     btn.textContent = levelNames[level] || `${level} 등급`;
@@ -199,16 +199,16 @@ function selectLevel(level) {
     if (btn.dataset.level === level || (level === 'REVIEW' && btn.id === 'btn-tab-review')) {
       // 선택된 스타일
       if(level === 'REVIEW') {
-        btn.className = `px-6 py-2 rounded-full font-bold text-sm transition-all border bg-[#cb4b16] text-[#fdf6e3] border-[#cb4b16]`;
+        btn.className = `px-6 py-2 rounded-full font-medium text-sm transition-all border bg-[#cb4b16] text-[#fdf6e3] border-[#cb4b16]`;
       } else {
-        btn.className = `px-6 py-2 rounded-full font-bold text-sm transition-all border tab-btn bg-[#586e75] text-[#eee8d5] border-[#586e75]`;
+        btn.className = `px-6 py-2 rounded-full font-medium text-sm transition-all border tab-btn bg-[#586e75] text-[#eee8d5] border-[#586e75]`;
       }
     } else {
       // 해제된 스타일
       if (btn.id === 'btn-tab-review') {
-         btn.className = `px-6 py-2 rounded-full font-bold text-sm transition-all border bg-[#fdf6e3] text-[#cb4b16] border-[#93a1a1] hover:bg-[#fdf6e3]`;
+         btn.className = `px-6 py-2 rounded-full font-medium text-sm transition-all border bg-[#fdf6e3] text-[#cb4b16] border-[#93a1a1] hover:bg-[#fdf6e3]`;
       } else {
-         btn.className = `px-6 py-2 rounded-full font-bold text-sm transition-all border tab-btn bg-[#fdf6e3] text-stone-500 border-[#93a1a1] hover:bg-[#fdf6e3]`;
+         btn.className = `px-6 py-2 rounded-full font-medium text-sm transition-all border tab-btn bg-[#fdf6e3] text-stone-500 border-[#93a1a1] hover:bg-[#fdf6e3]`;
       }
     }
   });
@@ -310,13 +310,13 @@ function renderReviewList() {
      li.innerHTML = `
         <div class="flex flex-col gap-2 w-full pr-10 sm:pr-12">
           <div class="flex items-center gap-3">
-            <span class="text-[0.65rem] px-2 py-1 rounded-md font-bold whitespace-nowrap border border-[#eee8d5] ${badgeColor}">${dot} ${badgeText}</span>
+            <span class="text-[0.65rem] px-2 py-1 rounded-md font-medium whitespace-nowrap border border-[#eee8d5] ${badgeColor}">${dot} ${badgeText}</span>
             <div class="flex flex-col">
               <div class="flex items-baseline gap-2">
                 <span class="font-medium font-serif text-[#586e75] text-xl md:text-2xl">${w.word}</span>
-                <span class="text-xs text-[#268bd2] font-bold tracking-wide">${w.pos}</span>
+                <span class="text-xs text-[#268bd2] font-medium tracking-wide">${w.pos}</span>
               </div>
-              <span class="text-[0.65rem] text-[#859900] tracking-widest font-bold">${w.hanja && w.hanja !== '고유어' ? w.hanja : ''}</span>
+              <span class="text-[0.65rem] text-[#859900] tracking-widest font-medium">${w.hanja && w.hanja !== '고유어' ? w.hanja : ''}</span>
             </div>
           </div>
           <div class="text-xs text-stone-600 sm:max-w-full break-keep leading-tight pl-1 border-l-2 border-[#93a1a1]/50">
