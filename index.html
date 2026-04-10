@@ -15,8 +15,13 @@
     <p class="text-[#84806A] text-sm font-medium">우리말의 다채로운 뉘앙스와 깊이를 내 것으로</p>
   </header>
 
-  <main class="w-full max-w-2xl space-y-8">
+  <main class="w-full max-w-2xl space-y-6">
     
+    <!-- Grade Selector -->
+    <div id="grade-selector" class="flex flex-wrap gap-2 justify-center mb-2">
+      <!-- Buttons will be injected here dynamically -->
+    </div>
+
     <section class="glass-panel rounded-3xl p-6 relative overflow-hidden">
       <!-- Glow effect (Olive & Orange tones) -->
       <div class="absolute -top-10 -right-10 w-32 h-32 bg-[#8ba175] rounded-full mix-blend-multiply filter blur-3xl opacity-20"></div>
@@ -59,35 +64,31 @@
             <p id="word-front-hanja" class="text-base text-[#8A887A] font-medium tracking-widest mb-1"></p>
             <p id="word-front-hanja-meaning" class="text-xs text-[#6A7B54] font-medium tracking-wide mb-3"></p>
             
-            <p id="word-front-example" class="text-sm text-stone-700 bg-[#EAE6D6] p-3 rounded-lg w-full mb-4 break-keep italic text-center"></p>
+            <div id="word-front-examples" class="text-sm text-stone-700 bg-[#EAE6D6] p-4 rounded-xl w-full mb-4 break-keep italic space-y-2 hidden">
+              <!-- AI generated examples will be injected here -->
+            </div>
             
-            <textarea id="user-meaning-input" class="w-full bg-[#F5F2E6] border border-[#D6D2BF] rounded-xl p-4 text-stone-800 focus:outline-none focus:ring-2 focus:ring-[#8ba175] focus:bg-[#FAF8F0] transition-colors resize-none h-20" placeholder="이 단어의 뜻은 무엇일까요? 서술해보세요."></textarea>
-            
-            <div id="loading-indicator" class="hidden w-full flex-col items-center justify-center mt-6 text-[#8A887A]">
+            <div id="loading-indicator" class="hidden w-full flex-col items-center justify-center mt-6 text-[#8ba175]">
               <div class="w-8 h-8 border-4 border-[#8ba175] border-t-transparent rounded-full animate-spin mb-3"></div>
-              <p class="text-sm font-medium animate-pulse">AI가 답변을 채점하고 있어요...</p>
+              <p class="text-sm font-bold animate-pulse">AI가 이 단어의 예문을 만들고 있어요...</p>
+            </div>
+
+            <div id="think-hint" class="hidden w-full text-center mt-4">
+              <p class="text-[#8A887A] text-sm font-medium">💡 위 예문들을 보고 단어의 뜻을 유추해 보세요!</p>
             </div>
           </div>
 
           <div class="col-start-1 row-start-1 rotate-y-180 backface-hidden h-full glass-panel rounded-3xl flex flex-col p-6 border-t border-l border-white/80 bg-gradient-to-br from-[#EAE6D6]/30 to-[#FAF8F0]">
             <div class="flex flex-col h-full">
-              <div id="ai-judgment-area" class="px-4 py-3 rounded-xl mb-4 bg-white/60">
-                <p id="ai-judgment-text" class="font-bold text-lg text-[#3B392E]">채점 결과</p>
-                <p id="ai-feedback" class="text-sm text-stone-700 mt-1 break-keep">피드백이 표시됩니다.</p>
-              </div>
-
-              <div class="flex-1 space-y-3">
-                <div id="hanja-breakdown-area" class="bg-[#E5EAD8]/60 rounded-xl p-4 hidden">
-                  <p class="text-xs text-[#7A8B63] font-bold mb-1 uppercase tracking-widest">한자 뜻풀이</p>
+              <div class="flex-1 flex flex-col space-y-3 justify-center mt-2">
+                <div class="bg-white/60 rounded-xl p-5 shadow-sm border border-[#E0DBC5]/50 flex-1">
+                  <p class="text-xs text-[#D98C63] font-bold mb-2 uppercase tracking-widest">정답 뜻풀이</p>
+                  <p id="word-back-meaning" class="text-lg font-bold text-stone-800 leading-relaxed break-keep"></p>
+                  <p id="word-back-nuance" class="text-sm text-[#6A7B54] mt-3 break-keep"></p>
+                </div>
+                <div id="hanja-breakdown-area" class="bg-[#E5EAD8]/60 rounded-xl p-5 border border-[#D4DEC9] hidden">
+                  <p class="text-xs text-[#7A8B63] font-bold mb-2 uppercase tracking-widest">한자 뜻풀이</p>
                   <p id="word-back-hanja-breakdown" class="text-sm font-medium text-[#414A35] leading-relaxed break-keep"></p>
-                </div>
-                <div class="bg-white/60 rounded-xl p-4">
-                  <p class="text-xs text-[#8A887A] font-bold mb-1 uppercase tracking-widest">정확한 뜻</p>
-                  <p id="word-back-meaning" class="text-base font-medium text-stone-800 leading-relaxed break-keep"></p>
-                </div>
-                <div class="bg-white/60 rounded-xl p-4">
-                  <p class="text-xs text-[#8A887A] font-bold mb-1 uppercase tracking-widest">예문</p>
-                  <p id="word-back-example" class="text-base italic text-stone-700 break-keep"></p>
                 </div>
               </div>
             </div>
@@ -99,18 +100,18 @@
       <div class="mt-8 w-full max-w-sm">
         
         <button id="btn-submit" class="w-full py-4 rounded-2xl bg-[#5C664C] text-[#F5F2E6] font-medium shadow-lg shadow-[#5C664C]/20 hover:bg-[#4a523d] transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
-          AI에게 채점받기
+          정답 확인하기
         </button>
 
         <div id="btn-container-actions" class="hidden flex gap-3 w-full">
-          <button id="btn-mark-pending" class="flex-1 py-4 bg-[#FAF8F0] text-stone-600 rounded-2xl border border-[#D6D2BF] font-medium transition-colors hover:bg-white">
-            전혀 모름
+          <button id="btn-mark-wrong" class="flex-1 py-3 bg-[#FAF8F0] text-stone-700 rounded-2xl border border-[#D6D2BF] font-bold transition-colors hover:bg-white shadow-sm hover:shadow-md">
+            아예 틀림<br><span class="text-xs font-normal text-stone-500">자주 출제</span>
           </button>
-          <button id="btn-mark-learning" class="flex-1 py-4 bg-[#E8EDE1] text-[#556343] rounded-2xl border border-[#D4DEC9] font-medium transition-colors hover:bg-[#DEE6D5]">
-            학습 중
+          <button id="btn-mark-learning" class="flex-1 py-3 bg-[#E8EDE1] text-[#556343] rounded-2xl border border-[#D4DEC9] font-bold transition-colors hover:bg-[#DEE6D5] shadow-sm hover:shadow-md">
+            애매함<br><span class="text-xs font-normal opacity-80">보통 출제</span>
           </button>
-          <button id="btn-mark-mastered" class="flex-1 py-4 bg-[#D98C63] text-white rounded-2xl font-medium shadow-lg shadow-[#D98C63]/30 transition-colors hover:bg-[#C47D57]">
-            완벽히 암기
+          <button id="btn-mark-mastered" class="flex-1 py-3 bg-[#D98C63] text-white rounded-2xl font-bold shadow-lg shadow-[#D98C63]/30 transition-colors hover:bg-[#C47D57]">
+            완전 맞힘<br><span class="text-xs font-normal opacity-90">가끔 출제</span>
           </button>
         </div>
 
@@ -134,7 +135,7 @@
 
   </main>
 
-  <script src="data.js"></script>
+  <script src="words_db.js"></script>
   <script src="app.js"></script>
 </body>
 </html>

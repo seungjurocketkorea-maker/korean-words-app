@@ -33,17 +33,15 @@ export default {
 
     try {
       const body = await request.json();
-      const { word, userAnswer } = body;
+      const { word, meaning, hanja, pos } = body;
 
-      if (!word || !userAnswer) {
-        return new Response(JSON.stringify({ error: 'Missing word or userAnswer' }), {
+      if (!word) {
+        return new Response(JSON.stringify({ error: 'Missing word in request body' }), {
           status: 400,
           headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         });
       }
 
-      // 2. 환경 변수에서 Gemini API 키 가져오기 (Cloudflare Dashboard에서 설정해야 함)
-      // `wrangler.toml` 이나 대시보드의 Secret Variables에 `GEMINI_API_KEY`를 넣으세요.
       const apiKey = env.GEMINI_API_KEY;
       if (!apiKey) {
         return new Response(JSON.stringify({ error: 'API Key not configured on server' }), {
@@ -52,29 +50,28 @@ export default {
         });
       }
 
-      // 3. Prompt 설계
+      // Anki 스타일 1회 호출용 프롬프트
       const promptText = `
-너는 국어 단어 학습을 도와주는 친절한 선생님이야. 
-문제로 나온 단어는 "${word}" 이며, 학생이 작성한 이 단어의 뜻은 "${userAnswer}" 야.
+당신은 최고 수준의 국어 교육 AI입니다. 다음 단어 정보를 바탕으로 학습자가 단어의 뜻을 유추하고 깊이 있게 이해할 수 있는 학습 자료를 생성하세요.
 
-다음 5가지 정보를 반드시 JSON 형식으로만 반환해줘. 다른 말은 절대 추가하지 마.
-1. "isCorrect": 학생의 답이 완벽히 맞으면 "correct", 의미가 어느 정도 통하면 "partial", 아예 틀리거나 상관없으면 "incorrect" 로 작성.
-2. "feedback": 학생의 답변을 친절하게 채점하며 뉘앙스 차이나 이유를 설명해 줄 것.
-3. "exactMeaning": "${word}"의 표준국어대사전 기준 정확하고 명료한 뜻.
-4. "exampleSentence": "${word}" 단어를 활용한 실생활 예문. 단어가 눈에 띄게 HTML <strong> 태그로 감싸져 있어야 함.
-5. "hanjaBreakdown": 만약 "${word}"가 한자어라면, 각 한자의 음과 뜻을 풀이하고 왜 그런 의미가 되었는지 간략히 설명해줘. 고유어라면 빈 문자열("")를 반환해.
+단어: "${word}"
+품사: "${pos || '알수없음'}"
+사전적 의미: "${meaning || '의미 파악 불가'}"
+한자 정보: "${hanja || ''}"
 
-JSON 응답 예시:
+규칙:
+1. "examples": 학습자가 뜻을 유추할 수 있도록 돕는 실용적이고 자연스러운 예문 3개를 배열로 제공하세요. 예문 내 "${word}"(및 활용형)은 <strong> 태그로 강조하세요.
+2. "nuance": 해당 단어의 속뜻, 뉘앙스, 혹은 비슷한 단어와의 차이점을 1~2문장으로 친절하게 설명하세요.
+3. "hanjaBreakdown": 단어가 한자어일 경우 각 한자의 음과 뜻을 분리(예: 破 깨뜨릴 파)하여 설명하고, 이 한자들이 모여 왜 현재의 뜻이 되었는지 어원을 서술하세요. 고유어라면 빈 문자열을 반환하세요.
+
+응답은 반드시 아래 JSON 형식으로만 출력하세요 (텍스트 설명 제외):
 {
-  "isCorrect": "partial",
-  "feedback": "의미를 비슷하게 파악하셨어요! 하지만 정확한 뉘앙스는 ~~입니다.",
-  "exactMeaning": "정확한 뜻 내용",
-  "exampleSentence": "그는 <strong>단어</strong> 이렇게 말했다.",
-  "hanjaBreakdown": "單(홑 단) 語(말씀 어): 낱말을 뜻합니다."
+  "examples": ["첫 번째 예문", "두 번째 예문", "세 번째 예문"],
+  "nuance": "뉘앙스 설명",
+  "hanjaBreakdown": "한자 뜻풀이"
 }
-      `.trim();
+`.trim();
 
-      // 4. Gemini API 호출 (gemini-3-flash-preview 모델 사용)
       const geminiEndpoint = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key=${apiKey}`;
       
       const geminiResponse = await fetch(geminiEndpoint, {
@@ -91,12 +88,9 @@ JSON 응답 예시:
 
       const data = await geminiResponse.json();
       const textOutput = data.candidates[0].content.parts[0].text;
-      
-      // JSON 파싱 (Gemini가 마크다운 틱을 포함할 수 있으므로 제거)
       const cleanJsonStr = textOutput.replace(/```json/g, '').replace(/```/g, '').trim();
       const resultObj = JSON.parse(cleanJsonStr);
 
-      // 5. 프론트엔드로 전달
       return new Response(JSON.stringify(resultObj), {
         status: 200,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },

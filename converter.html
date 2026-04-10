@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>단어장 CSV → JS 변환기</title>
+  <!-- Tailwind CSS -->
+  <script src="https://unpkg.com/@tailwindcss/browser@4"></script>
+  <!-- PapaParse for easy CSV parsing -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+</head>
+<body class="bg-[#E6E1CE] p-10 font-serif text-[#3B392E]">
+  <div class="max-w-xl mx-auto bg-white/60 p-8 rounded-3xl shadow-lg border border-[#E0DBC5]">
+    <h1 class="text-2xl font-bold mb-4">단어장 데이터 생성기</h1>
+    <p class="mb-6 text-[#6A7B54]">korean.csv 파일을 아래에 올려주시면, 자동으로 등급이 분류된 <br><strong>words_db.js</strong> 파일을 다운로드합니다.</p>
+    
+    <label class="block mb-2 font-bold">📂 korean.csv 파일 선택</label>
+    <input type="file" id="csv-file" accept=".csv" class="mb-4 block w-full text-sm text-gray-500
+      file:mr-4 file:py-2 file:px-4
+      file:rounded-full file:border-0
+      file:text-sm file:font-semibold
+      file:bg-[#8BA175] file:text-white
+      hover:file:bg-[#6A7B54] cursor-pointer" />
+      
+    <div id="output-log" class="mt-4 text-sm text-red-600 hidden"></div>
+  </div>
+
+  <script>
+    document.getElementById('csv-file').addEventListener('change', function(e) {
+      const file = e.target.files[0];
+      if (!file) return;
+
+      Papa.parse(file, {
+        header: false,
+        skipEmptyLines: true,
+        complete: function(results) {
+          const rows = results.data;
+          // 구조: A열(0):순위, B열(1):단어, C열(2):품사, D열(3):풀이/한자, E열(4):등급
+          
+          const db = {};
+
+          for (let i = 1; i < rows.length; i++) { // 첫 열(제목) 스킵
+            const row = rows[i];
+            if (row.length < 5) continue;
+            
+            const id = 'word_' + row[0];
+            const word = row[1]?.trim() || "";
+            const pos = row[2]?.trim() || "";
+            let meaningRaw = row[3]?.trim() || "";
+            const level = row[4]?.trim() || "기타";
+
+            if(!word) continue;
+
+            // 한자 추출: '(漢字)' 형태가 있으면 추출
+            let hanja = "";
+            let cleanMeaning = meaningRaw;
+            const hanjaMatch = meaningRaw.match(/\((.*?)\)/);
+            if(hanjaMatch) {
+              hanja = hanjaMatch[1];
+            }
+
+            if (!db[level]) {
+              db[level] = [];
+            }
+
+            db[level].push({
+              id: id,
+              word: word,
+              hanja: hanja,
+              pos: pos,
+              meaning: cleanMeaning,
+              level: level,
+              status: 'pending'
+            });
+          }
+
+          // 변환 완료 후 JS 파일로 만들기
+          const jsContent = 'const wordsDB = ' + JSON.stringify(db, null, 2) + ';\n';
+          
+          const blob = new Blob([jsContent], { type: 'text/javascript' });
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = 'words_db.js';
+          a.click();
+          URL.revokeObjectURL(url);
+          
+          const log = document.getElementById('output-log');
+          log.classList.remove('hidden', 'text-red-600');
+          log.classList.add('text-green-600');
+          log.innerHTML = `✅ 변환 성공! 총 ${Object.keys(db).length}개의 등급과 ${rows.length - 1}개의 단어가 words_db.js 로 저장되었습니다. 다운로드 폴더를 확인하시고, 프로젝트 폴더로 파일을 옮겨주세요!`;
+        },
+        error: function(err) {
+          document.getElementById('output-log').innerText = '변환 중 오류 발생: ' + err.message;
+          document.getElementById('output-log').classList.remove('hidden');
+        }
+      });
+    });
+  </script>
+</body>
+</html>
