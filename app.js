@@ -303,27 +303,59 @@ function renderReviewList() {
      }
      
      const li = document.createElement('li');
-     li.className = 'flex flex-col sm:flex-row sm:items-center justify-between p-4 bg-[#FAF8F0]/80 border border-[#E0DBC5] rounded-xl shadow-sm hover:shadow-md transition-all gap-2 cursor-pointer border-l-4 hover:-translate-y-0.5';
+     li.className = 'flex flex-col sm:flex-row sm:items-center justify-between p-4 bg-[#FAF8F0]/80 border border-[#E0DBC5] rounded-xl shadow-sm hover:shadow-md transition-all gap-2 cursor-pointer border-l-4 hover:-translate-y-0.5 relative group';
      li.style.borderLeftColor = st === 'wrong' ? '#EF4444' : (st === 'learning' ? '#F59E0B' : '#10B981');
      li.onclick = () => openWordModal(w); // 클릭 시 모달창 띄우기
 
      li.innerHTML = `
-        <div class="flex items-center gap-3 w-full sm:w-auto">
-          <span class="text-[0.65rem] px-2 py-1 rounded-md font-bold whitespace-nowrap border border-white/40 shadow-sm ${badgeColor}">${dot} ${badgeText}</span>
-          <div class="flex flex-col">
-            <div class="flex items-baseline gap-1">
-              <span class="font-bold font-serif text-[#3B392E] text-lg">${w.word}</span>
-              <span class="text-[0.6rem] text-[#C47D57] font-bold">${w.pos}</span>
+        <div class="flex flex-col gap-2 w-full pr-8 sm:pr-10">
+          <div class="flex items-center gap-3">
+            <span class="text-[0.65rem] px-2 py-1 rounded-md font-bold whitespace-nowrap border border-white/40 shadow-sm ${badgeColor}">${dot} ${badgeText}</span>
+            <div class="flex flex-col">
+              <div class="flex items-baseline gap-1">
+                <span class="font-bold font-serif text-[#3B392E] text-lg">${w.word}</span>
+                <span class="text-[0.6rem] text-[#C47D57] font-bold">${w.pos}</span>
+              </div>
+              <span class="text-[0.65rem] text-[#8BA175] tracking-widest font-bold">${w.hanja && w.hanja !== '고유어' ? w.hanja : ''}</span>
             </div>
-            <span class="text-[0.65rem] text-[#8BA175] tracking-widest font-bold">${w.hanja && w.hanja !== '고유어' ? w.hanja : ''}</span>
+          </div>
+          <div class="text-xs text-stone-600 sm:max-w-full break-keep leading-tight pl-1 border-l-2 border-[#D6D2BF]/50">
+            ${w.meaning}
           </div>
         </div>
-        <div class="text-xs text-stone-600 sm:max-w-[50%] break-keep leading-tight pl-1 sm:pl-0 border-l-2 sm:border-l-0 border-[#D6D2BF]/50">
-          ${w.meaning}
-        </div>
+        
+        <!-- Delete Button (Olive Dunk 톤온톤 스타일, 데스크톱 호버 시 나타남) -->
+        <button class="absolute top-3 right-3 sm:top-1/2 sm:-translate-y-1/2 p-2 text-[#D6D2BF] bg-[#FAF8F0] border border-transparent hover:border-[#E0DBC5] hover:bg-white hover:text-[#D98C63] transition-all rounded-xl sm:opacity-0 sm:group-hover:opacity-100 shadow-sm hover:shadow-md" onclick="deleteWordFromReview(event, '${w.id}')" title="이 단어 기록 삭제">
+          <svg class="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+        </button>
      `;
      elements.reviewWordList.appendChild(li);
   });
+}
+
+// 삭제 기능
+window.deleteWordFromReview = function(event, wordId) {
+  event.stopPropagation(); // 상위(li)의 onClick(모달) 실행을 막음
+  
+  if (!confirm("이 단어의 현재 학습 상태를 목록에서 삭제하시겠습니까?\n(삭제 시 '미학습' 단어로 초기화됩니다)")) {
+    return;
+  }
+  
+  if (userProgress[wordId]) {
+    delete userProgress[wordId];
+    saveProgress(); // 탭 상단의 통계치들도 같이 갱신됨
+    
+    // 현재 리뷰 풀에서 제거하고, 화면 새로 렌더링 (페이지 번호 및 검색어 등 유지)
+    reviewPoolAll = reviewPoolAll.filter(w => w.id !== wordId);
+    
+    // 만약 현재 페이지의 마지막 단어를 지워서 페이지가 텅 비게 되면, 이전 페이지로 당김
+    const totalPages = Math.max(1, Math.ceil(reviewPoolAll.length / REVIEW_ITEMS_PER_PAGE));
+    if (currentReviewPage > totalPages) {
+      currentReviewPage = totalPages;
+    }
+    
+    renderReviewList();
+  }
 }
 
 // ==========================================
