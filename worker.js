@@ -87,13 +87,17 @@ JSON 파싱 가능한 형태로만 반환하라.
 1. "isCorrect": 학생의 문맥 파악이 완벽하다면 "correct", 의미가 좀 통하거나 뉘앙스는 비슷하면 "partial", 아예 틀리거나 상관없는 소리라면 "incorrect" 로 작성해.
 2. "feedback": 학생의 뜻풀이를 다정하고 전문적인 선생님 말투로 평가해줘. 왜 맞았는지, 왜 부분점수인지, 혹은 왜 틀렸는지 친절하게 1~2문장으로 설명해야 해.
 
-JSON 파싱 가능한 형태로만 반환하라.
+반드시 아래 JSON 응답 예시와 정확히 똑같은 키를 가진 구조로 반환하라:
+{
+  "isCorrect": "partial",
+  "feedback": "의미를 통하게 쓰셨습니다! 하지만 정확한 뜻은 ~에 가깝습니다."
+}
 `;
       } else {
         return new Response(JSON.stringify({ error: 'Invalid action. Must be "context" or "grade"' }), { status: 400, headers: corsHeaders });
       }
 
-      const geminiEndpoint = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key=${apiKey}`;
+      const geminiEndpoint = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
       const geminiResponse = await fetch(geminiEndpoint, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
