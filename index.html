@@ -54,6 +54,25 @@
       </div>
     </section>
 
+    <!-- Review List View Area -->
+    <section id="review-list-section" class="hidden flex-col items-center">
+      <div class="w-full bg-white/60 backdrop-blur-md rounded-3xl border border-[#D6D2BF] p-6 shadow-sm">
+        <div class="flex justify-between items-center mb-6">
+          <h3 class="text-xl font-bold text-[#3B392E]">내가 공부한 단어 목록</h3>
+          <button id="btn-start-review-cards" class="px-5 py-2 bg-[#D98C63] text-white rounded-xl font-bold text-sm shadow-md hover:bg-[#c37a53] transition-all flex items-center gap-2" onclick="startReviewCards()">
+            🔥 플래시카드 풀기 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
+          </button>
+        </div>
+        
+        <div class="max-h-[500px] overflow-y-auto pr-2 custom-scrollbar">
+          <ul id="review-word-list" class="space-y-3">
+            <!-- List items populated by app.js -->
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- Flashcard Area -->
     <section id="card-area" class="flex flex-col items-center hidden">
       
       <div id="word-card-container" class="perspective-1000 w-full group">
@@ -146,6 +165,19 @@
     </section>
 
   </main>
+
+  <!-- Backup & Restore Footer -->
+  <footer class="w-full max-w-2xl mt-12 mb-8 flex justify-center gap-4 text-sm border-t border-[#D6D2BF] pt-6">
+    <button onclick="exportData()" class="px-5 py-2 bg-[#EAE6D6] text-stone-600 rounded-xl font-bold hover:bg-[#D6D2BF] transition-colors shadow-sm flex items-center gap-2">
+      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+      데이터 파일로 저장 (백업)
+    </button>
+    <label class="px-5 py-2 bg-[#EAE6D6] text-stone-600 rounded-xl font-bold hover:bg-[#D6D2BF] transition-colors shadow-sm cursor-pointer flex items-center gap-2">
+      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path></svg>
+      다른 브라우저에서 불러오기
+      <input type="file" class="hidden" accept=".json" onchange="importData(event)">
+    </label>
+  </footer>
 
   <script src="words_db.js"></script>
   <script src="app.js"></script>

@@ -54,7 +54,10 @@ const elements = {
   btnSubmit: document.getElementById('btn-submit'),
   btnContainerNext: document.getElementById('btn-container-next'),
   btnNext: document.getElementById('btn-next'),
-  btnTabReview: document.getElementById('btn-tab-review')
+  btnTabReview: document.getElementById('btn-tab-review'),
+  
+  reviewListSection: document.getElementById('review-list-section'),
+  reviewWordList: document.getElementById('review-word-list')
 };
 
 // ==========================================
@@ -149,7 +152,77 @@ function selectLevel(level) {
 
   elements.statsSection.classList.remove('hidden');
   updateStats();
+  
+  // Review 모드 선택 시 플래시카드 즉시 시작 대신에 리스트 우선 표시
+  if (level === 'REVIEW') {
+     elements.cardArea.classList.add('hidden');
+     elements.emptyState.classList.add('hidden');
+     
+     populateReviewList();
+     elements.reviewListSection.classList.remove('hidden');
+     elements.reviewListSection.classList.add('flex');
+  } else {
+     elements.reviewListSection.classList.add('hidden');
+     elements.reviewListSection.classList.remove('flex');
+     loadNextWord();
+  }
+}
+
+function startReviewCards() {
+  elements.reviewListSection.classList.add('hidden');
+  elements.reviewListSection.classList.remove('flex');
   loadNextWord();
+}
+
+function populateReviewList() {
+  const pool = getReviewPool();
+  elements.reviewWordList.innerHTML = '';
+  
+  if (pool.length === 0) {
+     elements.reviewWordList.innerHTML = '<li class="p-6 text-center text-stone-500 text-sm font-medium">아직 학습한 단어가 없습니다. 먼저 등급 탭에서 단어를 학습해보세요!</li>';
+     return;
+  }
+  
+  // 시급한 복습 단어(틀린단어)가 맨 위로 오도록 정렬
+  pool.sort((a,b) => {
+     const statusOrder = { 'wrong': 0, 'learning': 1, 'mastered': 2 };
+     const sa = userProgress[a.id]?.status || 'mastered';
+     const sb = userProgress[b.id]?.status || 'mastered';
+     if(statusOrder[sa] !== statusOrder[sb]) return statusOrder[sa] - statusOrder[sb];
+     return a.word.localeCompare(b.word);
+  });
+  
+  pool.forEach(w => {
+     const st = userProgress[w.id]?.status;
+     let dot = '🟢';
+     let badgeColor = 'text-green-700 bg-green-100/80';
+     let badgeText = '완벽 암기';
+     
+     if(st === 'wrong') { 
+       dot = '🔴'; badgeColor = 'text-red-700 bg-red-100/80'; badgeText = '복습 시급'; 
+     } else if(st === 'learning') { 
+       dot = '🟡'; badgeColor = 'text-yellow-700 bg-yellow-100/80'; badgeText = '학습 중'; 
+     }
+     
+     const li = document.createElement('li');
+     li.className = 'flex flex-col sm:flex-row sm:items-center justify-between p-4 bg-[#FAF8F0]/80 border border-[#E0DBC5] rounded-xl shadow-sm hover:shadow-md transition-shadow gap-2';
+     li.innerHTML = `
+        <div class="flex items-center gap-3 w-full sm:w-auto">
+          <span class="text-[0.65rem] px-2 py-1 rounded-md font-bold whitespace-nowrap border border-white/40 shadow-sm ${badgeColor}">${dot} ${badgeText}</span>
+          <div class="flex flex-col">
+            <div class="flex items-baseline gap-1">
+              <span class="font-bold font-serif text-[#3B392E] text-lg">${w.word}</span>
+              <span class="text-[0.6rem] text-[#C47D57] font-bold">${w.pos}</span>
+            </div>
+            <span class="text-[0.65rem] text-[#8BA175] tracking-widest font-bold">${w.hanja && w.hanja !== '고유어' ? w.hanja : ''}</span>
+          </div>
+        </div>
+        <div class="text-xs text-stone-600 sm:max-w-[50%] break-keep leading-tight pl-1 sm:pl-0 border-l-2 sm:border-l-0 border-[#D6D2BF]/50">
+          ${w.meaning}
+        </div>
+     `;
+     elements.reviewWordList.appendChild(li);
+  });
 }
 
 function getReviewPool() {
@@ -508,3 +581,49 @@ function flipCardAndShowFeedback(aiGrade) {
 
 // 앱 실행
 document.addEventListener('DOMContentLoaded', initApp);
+
+// ==========================================
+// 5. 데이터 백업 및 복원 (Export / Import)
+// ==========================================
+function exportData() {
+  const dataStr = localStorage.getItem(STORAGE_KEY) || "{}";
+  const blob = new Blob([dataStr], { type: "application/json" });
+  const url = URL.createObjectURL(blob);
+  
+  const a = document.createElement('a');
+  a.href = url;
+  
+  const today = new Date();
+  const dateStr = `${today.getFullYear()}${(today.getMonth()+1).toString().padStart(2, '0')}${today.getDate().toString().padStart(2, '0')}`;
+  a.download = `korean_words_backup_${dateStr}.json`;
+  
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
+function importData(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+  
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    try {
+      const parsed = JSON.parse(e.target.result);
+      if (typeof parsed === 'object' && parsed !== null) {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(parsed));
+        userProgress = parsed;
+        alert("데이터를 성공적으로 불러왔습니다! 화면을 새로고침합니다.");
+        location.reload();
+      } else {
+        alert("올바른 백업 파일 형식이 아닙니다.");
+      }
+    } catch(err) {
+      alert("파일을 읽거나 분석하는 중 오류가 발생했습니다.");
+      console.error(err);
+    }
+  };
+  reader.readAsText(file);
+  event.target.value = ''; // 동일한 파일 다시 선택 가능하도록 초기화
+}
