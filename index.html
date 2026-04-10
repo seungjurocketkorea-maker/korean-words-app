@@ -25,29 +25,14 @@
     </div>
   </header>
 
-  <main class="w-full max-w-2xl space-y-8">
+  <main class="w-full max-w-2xl space-y-4">
     
-    <section class="solid-panel rounded-2xl p-6 relative overflow-hidden hidden" id="stats-section">
-      
-      <div class="flex justify-between items-end mb-6 relative z-10">
-        <div>
-          <h2 id="stats-title" class="text-xl font-bold text-[#5C664C]">현재 등급 학습 현황</h2>
-        </div>
-      </div>
-
-      <div class="grid grid-cols-3 gap-4 text-center">
-        <div class="bg-white rounded-xl py-3 border border-[#E0DBC5]">
-          <p class="text-xs text-[#84806A] font-semibold mb-1 uppercase tracking-wider">미학습/틀림</p>
-          <p id="stat-pending" class="text-xl font-bold text-[#5c594c]">0</p>
-        </div>
-        <div class="bg-white rounded-xl py-3 border border-[#E0DBC5]">
-          <p class="text-xs text-[#84806A] font-semibold mb-1 uppercase tracking-wider">학습 중</p>
-          <p id="stat-learning" class="text-xl font-bold text-[#6A7B54]">0</p>
-        </div>
-        <div class="bg-white rounded-xl py-3 border border-[#E0DBC5]">
-          <p class="text-xs text-[#84806A] font-semibold mb-1 uppercase tracking-wider">완벽 암기</p>
-          <p id="stat-mastered" class="text-xl font-bold text-[#C47D57]">0</p>
-        </div>
+    <section class="w-full flex justify-between items-center px-2 mb-4 hidden" id="stats-section">
+      <h2 id="stats-title" class="text-sm font-bold text-[#5C664C]">현재 등급 학습 현황</h2>
+      <div class="flex gap-4 text-xs font-bold text-[#84806A]">
+        <span>미학습/틀림 <span id="stat-pending" class="text-[#5c594c] ml-1">0</span></span>
+        <span>학습 중 <span id="stat-learning" class="text-[#6A7B54] ml-1">0</span></span>
+        <span>완벽 암기 <span id="stat-mastered" class="text-[#C47D57] ml-1">0</span></span>
       </div>
     </section>
 
