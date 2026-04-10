@@ -99,19 +99,33 @@ JSON 파싱 가능한 형태로만 반환하라.
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           contents: [{ parts: [{ text: promptText }] }],
-          generationConfig: { temperature: 0.7 }
+          generationConfig: { 
+            temperature: 0.7,
+            responseMimeType: "application/json" 
+          }
         })
       });
 
       if (!geminiResponse.ok) {
-        throw new Error(`Gemini API error: ${geminiResponse.status}`);
+        const errorDetail = await geminiResponse.text();
+        throw new Error(`Gemini API error: ${geminiResponse.status} - ${errorDetail}`);
       }
 
       const data = await geminiResponse.json();
+      
+      if (!data.candidates || data.candidates.length === 0) {
+         throw new Error(`No candidates in response. Data: ${JSON.stringify(data)}`);
+      }
+
       const textOutput = data.candidates[0].content.parts[0].text;
       
-      const cleanJsonStr = textOutput.replace(/```json/g, '').replace(/```/g, '').trim();
-      const resultObj = JSON.parse(cleanJsonStr);
+      let resultObj;
+      try {
+        const cleanJsonStr = textOutput.replace(/```json/g, '').replace(/```/g, '').trim();
+        resultObj = JSON.parse(cleanJsonStr);
+      } catch (e) {
+        throw new Error(`JSON Parse Error: ${e.message} \nRaw text: ${textOutput}`);
+      }
 
       return new Response(JSON.stringify(resultObj), {
         status: 200,
@@ -119,7 +133,7 @@ JSON 파싱 가능한 형태로만 반환하라.
       });
 
     } catch (error) {
-      return new Response(JSON.stringify({ error: error.message }), {
+      return new Response(JSON.stringify({ error: error.message, stack: error.stack }), {
         status: 500,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });
