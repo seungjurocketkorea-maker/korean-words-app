@@ -303,18 +303,18 @@ function renderReviewList() {
      }
      
      const li = document.createElement('li');
-     li.className = 'flex flex-col sm:flex-row sm:items-center justify-between p-4 bg-[#FAF8F0]/80 border border-[#E0DBC5] rounded-xl shadow-sm hover:shadow-md transition-all gap-2 cursor-pointer border-l-4 hover:-translate-y-0.5 relative group';
+     li.className = 'flex flex-col sm:flex-row sm:items-center justify-between p-5 md:p-6 bg-white/70 border border-[#E0DBC5] rounded-2xl shadow-sm hover:shadow-md transition-all gap-3 cursor-pointer border-l-4 hover:-translate-y-1 relative group';
      li.style.borderLeftColor = st === 'wrong' ? '#EF4444' : (st === 'learning' ? '#F59E0B' : '#10B981');
      li.onclick = () => openWordModal(w); // 클릭 시 모달창 띄우기
 
      li.innerHTML = `
-        <div class="flex flex-col gap-2 w-full pr-8 sm:pr-10">
+        <div class="flex flex-col gap-2 w-full pr-10 sm:pr-12">
           <div class="flex items-center gap-3">
-            <span class="text-[0.65rem] px-2 py-1 rounded-md font-bold whitespace-nowrap border border-white/40 shadow-sm ${badgeColor}">${dot} ${badgeText}</span>
+            <span class="text-[0.65rem] px-2 py-1 rounded-md font-bold whitespace-nowrap shadow-sm ${badgeColor}">${dot} ${badgeText}</span>
             <div class="flex flex-col">
-              <div class="flex items-baseline gap-1">
-                <span class="font-bold font-serif text-[#3B392E] text-lg">${w.word}</span>
-                <span class="text-[0.6rem] text-[#C47D57] font-bold">${w.pos}</span>
+              <div class="flex items-baseline gap-2">
+                <span class="font-bold font-serif text-[#5C664C] text-xl md:text-2xl">${w.word}</span>
+                <span class="text-xs text-[#C47D57] font-bold tracking-wide">${w.pos}</span>
               </div>
               <span class="text-[0.65rem] text-[#8BA175] tracking-widest font-bold">${w.hanja && w.hanja !== '고유어' ? w.hanja : ''}</span>
             </div>

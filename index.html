@@ -8,11 +8,11 @@
   <script src="https://unpkg.com/@tailwindcss/browser@4"></script>
   <link rel="stylesheet" href="style.css" />
 </head>
-<body class="min-h-screen flex flex-col items-center py-10 px-4">
+<body class="min-h-screen flex flex-col items-center py-12 md:py-20 px-4 md:px-8">
 
-  <header class="w-full max-w-2xl mb-8 text-center">
-    <h1 class="text-4xl font-bold font-serif text-[#3B392E] mb-3 tracking-tight">AI 단어장 마스터</h1>
-    <p class="text-[#84806A] text-sm font-medium">직접 적고 AI에게 첨삭받으며 완벽하게 내 것으로 만드세요</p>
+  <header class="w-full max-w-2xl mb-12 text-center">
+    <h1 class="text-4xl md:text-5xl font-bold font-serif text-[#5C664C] mb-4 tracking-tight drop-shadow-sm">AI 단어장 마스터</h1>
+    <p class="text-[#8BA175] text-sm md:text-base font-bold tracking-wide">직접 적고 AI에게 첨삭받으며 완벽하게 내 것으로 만드세요</p>
     
     <!-- Level Selector -->
     <div id="level-tabs" class="flex justify-center flex-wrap gap-2 mt-6">
@@ -26,15 +26,15 @@
     </div>
   </header>
 
-  <main class="w-full max-w-2xl space-y-8">
+  <main class="w-full max-w-2xl space-y-10">
     
-    <section class="glass-panel rounded-3xl p-6 relative overflow-hidden hidden" id="stats-section">
-      <div class="absolute -top-10 -right-10 w-32 h-32 bg-[#8ba175] rounded-full mix-blend-multiply filter blur-3xl opacity-20"></div>
-      <div class="absolute -bottom-10 -left-10 w-32 h-32 bg-[#D98C63] rounded-full mix-blend-multiply filter blur-3xl opacity-20"></div>
+    <section class="glass-panel rounded-[2rem] p-8 md:p-10 relative overflow-hidden hidden" id="stats-section">
+      <div class="absolute -top-10 -right-10 w-40 h-40 bg-[#8BA175] rounded-full mix-blend-multiply filter blur-[3rem] opacity-20"></div>
+      <div class="absolute -bottom-10 -left-10 w-40 h-40 bg-[#D98C63] rounded-full mix-blend-multiply filter blur-[3rem] opacity-20"></div>
       
-      <div class="flex justify-between items-end mb-4 relative z-10">
+      <div class="flex justify-between items-end mb-6 relative z-10">
         <div>
-          <h2 id="stats-title" class="text-lg font-bold text-[#3B392E]">현재 등급 학습 현황</h2>
+          <h2 id="stats-title" class="text-xl font-bold text-[#5C664C]">현재 등급 학습 현황</h2>
         </div>
       </div>
 
@@ -56,10 +56,10 @@
 
     <!-- Review List View Area -->
     <section id="review-list-section" class="hidden flex-col items-center">
-      <div class="w-full bg-white/60 backdrop-blur-md rounded-3xl border border-[#D6D2BF] p-6 shadow-sm">
-        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
-          <h3 class="text-xl font-bold text-[#3B392E]">내가 공부한 단어 목록</h3>
-          <button id="btn-start-review-cards" class="px-5 py-2 bg-[#D98C63] text-white rounded-xl font-bold text-sm shadow-md hover:bg-[#c37a53] transition-all flex items-center gap-2" onclick="startReviewCards()">
+      <div class="w-full bg-white/60 backdrop-blur-md rounded-[2rem] border border-[#E0DBC5] p-8 md:p-10 shadow-sm transition-all">
+        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8 gap-4">
+          <h3 class="text-2xl font-bold font-serif text-[#5C664C]">내가 공부한 단어 목록</h3>
+          <button id="btn-start-review-cards" class="px-6 py-3 bg-[#D98C63] text-white rounded-2xl font-bold text-sm shadow-md shadow-[#D98C63]/20 hover:bg-[#c37a53] hover:-translate-y-0.5 hover:shadow-lg transition-all flex items-center gap-2" onclick="startReviewCards()">
             🔥 플래시카드 풀기 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
           </button>
         </div>
@@ -100,57 +100,57 @@
         <div id="word-card-inner" class="card-inner transform-style-3d relative w-full min-h-[420px] grid shadow-xl rounded-3xl transition-shadow duration-300">
           
           <!-- Front Side -->
-          <div class="col-start-1 row-start-1 backface-hidden h-full bg-[#FAF8F0] rounded-3xl flex flex-col justify-start items-center p-8 border border-[#E0DBC5]">
-            <h3 id="word-front" class="text-4xl font-bold font-serif text-[#3B392E] mt-2 mb-2">단어</h3>
-            <p id="word-front-pos" class="text-xs font-bold text-[#C47D57] bg-[#F5EFEA] px-2 py-1 rounded-md mb-2"></p>
-            <p id="word-front-hanja" class="text-sm text-[#8A887A] font-medium tracking-widest mb-4"></p>
+          <div class="col-start-1 row-start-1 backface-hidden h-full bg-[#FAF8F0] rounded-[2rem] flex flex-col justify-start items-center p-8 md:p-12 border border-[#E0DBC5]">
+            <h3 id="word-front" class="text-5xl md:text-6xl font-bold font-serif text-[#5C664C] mt-2 mb-3 drop-shadow-sm">단어</h3>
+            <p id="word-front-pos" class="text-xs font-bold text-[#C47D57] bg-[#F5EFEA] px-3 py-1.5 rounded-lg mb-3 tracking-wide"></p>
+            <p id="word-front-hanja" class="text-sm text-[#8BA175] font-bold tracking-widest mb-6"></p>
             
-            <div id="loading-indicator-front" class="flex w-full flex-col items-center justify-center mt-3 mb-3 text-[#8A887A]">
-              <div class="w-6 h-6 border-4 border-[#8ba175] border-t-transparent rounded-full animate-spin mb-2"></div>
-              <p class="text-xs font-medium animate-pulse">AI가 실생활 예문을 만들고 있어요...</p>
+            <div id="loading-indicator-front" class="flex w-full flex-col items-center justify-center mt-3 mb-3 text-[#8BA175]">
+              <div class="w-8 h-8 border-4 border-[#8BA175] border-t-transparent rounded-full animate-spin mb-3"></div>
+              <p class="text-xs font-bold animate-pulse">AI가 실생활 예문을 만들고 있어요...</p>
             </div>
 
-            <div id="front-examples-area" class="w-full hidden flex-col items-center mb-6">
-              <p class="text-[0.65rem] text-[#84806A] font-bold mb-2 uppercase tracking-widest">💡 예문을 보고 뜻을 유추해보세요</p>
-              <ul id="word-front-examples" class="text-sm text-left w-full text-stone-700 bg-[#EAE6D6]/50 border border-[#D6D2BF] p-4 rounded-xl space-y-2 break-keep leading-relaxed list-disc list-inside">
+            <div id="front-examples-area" class="w-full hidden flex-col items-center mb-8">
+              <p class="text-xs text-[#D98C63] font-bold mb-3 uppercase tracking-widest">💡 예문을 보고 뜻을 유추해보세요</p>
+              <ul id="word-front-examples" class="text-sm md:text-base text-left w-full text-stone-700 bg-white border border-[#E0DBC5] p-5 rounded-2xl space-y-3 break-keep leading-relaxed list-none shadow-sm">
               </ul>
             </div>
 
             <!-- Restore Text Area for AI Grading -->
-            <textarea id="user-meaning-input" class="w-full bg-[#F5F2E6] border border-[#D6D2BF] rounded-xl p-4 text-stone-800 text-sm focus:outline-none focus:ring-2 focus:ring-[#8ba175] focus:bg-[#FAF8F0] transition-colors resize-none h-20" placeholder="이 단어의 정확한 뜻/뉘앙스는 무엇일까요? 서술해보세요."></textarea>
+            <textarea id="user-meaning-input" class="w-full bg-[#F5F2E6] border border-[#D6D2BF] rounded-2xl p-5 text-stone-800 text-sm md:text-base focus:outline-none focus:ring-2 focus:ring-[#8ba175] focus:bg-white transition-colors resize-none h-24 shadow-inner" placeholder="이 단어의 정확한 뜻/뉘앙스는 무엇일까요? 서술해보세요."></textarea>
             
-            <div id="loading-indicator-grade" class="hidden w-full flex-col items-center justify-center mt-4 text-[#8A887A]">
-              <div class="w-6 h-6 border-4 border-[#D98C63] border-t-transparent rounded-full animate-spin mb-2"></div>
-              <p class="text-xs font-medium animate-pulse">선생님이 답안을 채점하고 있어요...</p>
+            <div id="loading-indicator-grade" class="hidden w-full flex-col items-center justify-center mt-6 text-[#D98C63]">
+              <div class="w-8 h-8 border-4 border-[#D98C63] border-t-transparent rounded-full animate-spin mb-3"></div>
+              <p class="text-xs font-bold animate-pulse">선생님이 답안을 채점하고 있어요...</p>
             </div>
           </div>
 
           <!-- Back Side -->
-          <div class="col-start-1 row-start-1 rotate-y-180 backface-hidden h-full glass-panel rounded-3xl flex flex-col p-8 border-t border-l border-white/80 bg-gradient-to-br from-[#EAE6D6]/30 to-[#FAF8F0]">
-            <div class="flex flex-col h-full space-y-4">
+          <div class="col-start-1 row-start-1 rotate-y-180 backface-hidden h-full glass-panel rounded-[2rem] flex flex-col p-8 border border-[#E0DBC5] bg-gradient-to-br from-white/60 to-[#FAF8F0]">
+            <div class="flex flex-col h-full space-y-5">
               
               <!-- AI Judgment Feedback -->
-              <div id="ai-judgment-area" class="px-4 py-3 rounded-xl mb-2 bg-white/80 shadow-sm border border-[#E0DBC5]">
-                <div class="flex items-center gap-2 mb-1">
-                  <span id="ai-judgment-badge" class="px-2 py-1 text-xs font-bold rounded-lg text-white bg-gray-400">판정</span>
-                  <p class="font-bold text-sm text-[#3B392E]">AI 선생님의 채점 피드백</p>
+              <div id="ai-judgment-area" class="px-5 py-4 rounded-2xl mb-2 bg-white shadow-sm border border-[#E0DBC5]">
+                <div class="flex items-center gap-3 mb-2">
+                  <span id="ai-judgment-badge" class="px-2.5 py-1.5 text-[0.65rem] font-bold rounded-lg text-white bg-gray-400 uppercase tracking-widest shadow-sm">판정</span>
+                  <p class="font-bold text-sm text-[#5C664C]">AI 선생님의 채점 피드백</p>
                 </div>
-                <p id="ai-feedback" class="text-sm text-stone-700 mt-1 break-keep leading-relaxed">피드백이 표시됩니다.</p>
+                <p id="ai-feedback" class="text-sm text-stone-700 mt-2 break-keep leading-relaxed font-medium">피드백이 표시됩니다.</p>
               </div>
 
-              <div class="bg-white/70 rounded-xl p-4 border border-[#E0DBC5]/50 shadow-sm">
-                <p class="text-xs text-[#8A887A] font-bold mb-1 uppercase tracking-widest">실제 정확한 뜻</p>
-                <p id="word-back-meaning-basic" class="text-base font-bold text-stone-800 break-keep leading-snug"></p>
+              <div class="bg-white rounded-2xl p-5 border border-[#E0DBC5] shadow-sm">
+                <p class="text-xs text-[#8BA175] font-bold mb-2 uppercase tracking-widest pl-1">사전적 의미</p>
+                <p id="word-back-meaning-basic" class="text-base font-bold text-stone-800 break-keep leading-snug pl-1"></p>
               </div>
 
-              <div class="bg-white/70 rounded-xl p-4 border border-[#E0DBC5]/50 shadow-sm">
-                <p class="text-xs text-[#8A887A] font-bold mb-1 uppercase tracking-widest">상세 해설 & 뉘앙스</p>
-                <p id="word-back-meaning-detailed" class="text-sm font-medium text-stone-700 leading-relaxed break-keep"></p>
+              <div class="bg-white rounded-2xl p-5 border border-[#E0DBC5] shadow-sm">
+                <p class="text-xs text-[#8BA175] font-bold mb-2 uppercase tracking-widest pl-1">상세 해설 & 뉘앙스</p>
+                <p id="word-back-meaning-detailed" class="text-sm font-medium text-stone-700 leading-loose break-keep pl-1"></p>
               </div>
               
-              <div id="hanja-breakdown-area" class="bg-[#8BA175]/10 rounded-xl p-4 border border-[#8BA175]/20">
-                <p class="text-xs text-[#6A7B54] font-bold mb-1 uppercase tracking-widest">한자 분해 및 어원</p>
-                <p id="word-back-hanja-breakdown" class="text-xs font-medium text-[#414A35] leading-relaxed break-keep"></p>
+              <div id="hanja-breakdown-area" class="bg-[#8BA175]/10 rounded-2xl p-5 border border-[#8BA175]/30 hidden mt-2">
+                <p class="text-xs text-[#5C664C] font-bold mb-2 uppercase tracking-widest pl-1">한자 분해 및 어원</p>
+                <p id="word-back-hanja-breakdown" class="text-sm font-medium text-[#414A35] leading-loose break-keep pl-1"></p>
               </div>
             </div>
           </div>
@@ -158,17 +158,17 @@
         </div>
       </div>
 
-      <div class="mt-8 w-full max-w-sm">
+      <div class="mt-8 w-full max-w-sm flex flex-col gap-4">
         
         <!-- Action Button (Front) -->
-        <button id="btn-submit" class="w-full py-4 rounded-2xl bg-[#5C664C] text-[#F5F2E6] font-medium shadow-lg shadow-[#5C664C]/20 hover:bg-[#4a523d] transition-transform active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed">
-          답안 제출 및 자동 채점
+        <button id="btn-submit" class="w-full py-4 rounded-2xl bg-[#8BA175] text-white font-bold shadow-md shadow-[#8BA175]/20 hover:bg-[#6A7B54] hover:-translate-y-0.5 hover:shadow-lg transition-all active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed">
+          답안 제출하고 자동 채점
         </button>
 
         <!-- Next Button (Back) -->
         <div id="btn-container-next" class="hidden w-full">
-          <button id="btn-next" class="w-full py-4 bg-[#D98C63] text-[#F5F2E6] rounded-2xl font-bold shadow-lg shadow-[#D98C63]/20 hover:bg-[#c37a53] transition-transform active:scale-95 flex items-center justify-center gap-2">
-            다시 묻기/다음 단어 
+          <button id="btn-next" onclick="loadNextWord()" class="w-full py-4 bg-[#D98C63] text-white rounded-2xl font-bold shadow-md shadow-[#D98C63]/20 hover:bg-[#c37a53] hover:-translate-y-0.5 hover:shadow-lg transition-all active:scale-95 flex items-center justify-center gap-2">
+            다시 묻기 / 다음 단어 
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
           </button>
         </div>
@@ -188,57 +188,57 @@
   </main>
 
   <!-- Word Detail Modal -->
-  <div id="word-detail-modal" class="fixed inset-0 bg-stone-900/40 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4 opacity-0 transition-opacity duration-300">
-    <div class="bg-[#FAF8F0] w-full max-w-lg rounded-3xl shadow-2xl overflow-hidden transform scale-95 transition-transform duration-300 flex flex-col max-h-[90vh]">
+  <div id="word-detail-modal" class="fixed inset-0 bg-stone-900/60 backdrop-blur-md z-50 hidden flex items-center justify-center p-4 opacity-0 transition-opacity duration-300">
+    <div class="bg-[#FAF8F0] w-full max-w-2xl rounded-[2rem] shadow-2xl shadow-stone-900/20 overflow-hidden transform scale-95 transition-transform duration-300 flex flex-col max-h-[90vh] border border-[#E0DBC5]">
       
       <!-- Modal Header -->
-      <div class="p-6 border-b border-[#E0DBC5] flex justify-between items-start bg-white">
+      <div class="p-8 border-b border-[#E0DBC5] flex justify-between items-start bg-white z-10">
         <div>
-          <div class="flex items-center gap-2 mb-1">
-            <h3 id="modal-word-title" class="text-3xl font-bold font-serif text-[#3B392E]">단어</h3>
-            <span id="modal-word-pos" class="text-xs font-bold text-[#C47D57] bg-[#F5EFEA] px-2 py-1 rounded-md">품사</span>
+          <div class="flex items-center gap-3 mb-2">
+            <h3 id="modal-word-title" class="text-4xl font-bold font-serif text-[#5C664C]">단어</h3>
+            <span id="modal-word-pos" class="text-xs font-bold text-[#C47D57] bg-[#F5EFEA] px-2 py-1 rounded-md tracking-wide">품사</span>
           </div>
-          <p id="modal-word-hanja" class="text-sm text-[#8A887A] font-medium tracking-widest"></p>
+          <p id="modal-word-hanja" class="text-sm text-[#8BA175] font-bold tracking-widest"></p>
         </div>
-        <button onclick="closeWordModal()" class="p-2 text-stone-400 hover:text-stone-700 bg-stone-100 hover:bg-stone-200 rounded-full transition-colors">
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+        <button onclick="closeWordModal()" class="p-3 text-stone-400 hover:text-stone-700 bg-[#FAF8F0] hover:bg-[#EAE6D6] rounded-full transition-colors flex-shrink-0">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
         </button>
       </div>
       
       <!-- Modal Content Area -->
-      <div class="p-6 overflow-y-auto custom-scrollbar flex-1 space-y-5 relative">
+      <div class="p-8 overflow-y-auto custom-scrollbar flex-1 space-y-8 relative bg-gradient-to-b from-white/30 to-[#FAF8F0]">
         
         <!-- Loading State inside Modal -->
-        <div id="modal-loading" class="flex flex-col items-center justify-center py-10 hidden">
-          <div class="w-8 h-8 border-4 border-[#8ba175] border-t-transparent rounded-full animate-spin mb-4"></div>
-          <p class="text-sm font-bold text-[#8A887A] animate-pulse">AI가 상세 해설을 가져오는 중입니다...</p>
+        <div id="modal-loading" class="flex flex-col items-center justify-center py-20 hidden">
+          <div class="w-10 h-10 border-4 border-[#8BA175] border-t-transparent rounded-full animate-spin mb-4"></div>
+          <p class="text-sm font-bold text-[#8BA175] animate-pulse">AI 선생님의 상세 해설을 불러오는 중입니다...</p>
         </div>
         
         <!-- Content State -->
-        <div id="modal-content" class="space-y-4">
+        <div id="modal-content" class="space-y-6">
           <!-- Basic Meaning -->
-          <div class="bg-white rounded-xl p-4 border border-[#E0DBC5] shadow-sm">
-            <p class="text-xs text-[#8BA175] font-bold mb-1 uppercase tracking-widest">사전적 의미</p>
-            <p id="modal-meaning-basic" class="text-base font-bold text-stone-800 break-keep leading-snug"></p>
+          <div class="bg-white rounded-2xl p-6 border border-[#E0DBC5] shadow-sm transform hover:-translate-y-0.5 transition-transform">
+            <p class="text-xs text-[#8BA175] font-bold mb-2 pl-1 tracking-widest">사전적 의미</p>
+            <p id="modal-meaning-basic" class="text-lg font-bold text-[#3B392E] break-keep leading-snug pl-1"></p>
           </div>
   
           <!-- Examples -->
           <div>
-            <p class="text-[0.65rem] text-[#84806A] font-bold mb-2 uppercase tracking-widest ml-1">💡 실생활 예문</p>
-            <ul id="modal-examples" class="text-sm text-left w-full text-stone-700 bg-[#EAE6D6]/50 border border-[#D6D2BF] p-4 rounded-xl space-y-2 break-keep leading-relaxed list-disc list-inside">
+            <p class="text-xs text-[#D98C63] font-bold mb-3 tracking-widest pl-2">💡 실생활 예문</p>
+            <ul id="modal-examples" class="text-sm text-left w-full text-stone-700 bg-white border border-[#E0DBC5] p-6 rounded-2xl space-y-4 break-keep leading-relaxed list-none shadow-sm">
             </ul>
           </div>
   
           <!-- Detailed Meaning -->
-          <div class="bg-white rounded-xl p-4 border border-[#E0DBC5] shadow-sm">
-            <p class="text-[0.65rem] text-[#84806A] font-bold mb-2 uppercase tracking-widest">상세 해설 & 뉘앙스</p>
-            <p id="modal-meaning-detailed" class="text-sm font-medium text-stone-700 leading-relaxed break-keep"></p>
+          <div class="bg-white rounded-2xl p-6 border border-[#E0DBC5] shadow-sm">
+            <p class="text-xs text-[#8BA175] font-bold mb-2 pl-1 tracking-widest">상세 해설 & 뉘앙스</p>
+            <p id="modal-meaning-detailed" class="text-sm font-medium text-[#5C664C] leading-loose break-keep pl-1"></p>
           </div>
           
           <!-- Hanja -->
-          <div id="modal-hanja-area" class="bg-[#8BA175]/10 rounded-xl p-4 border border-[#8BA175]/20 hidden">
-            <p class="text-xs text-[#6A7B54] font-bold mb-1 uppercase tracking-widest">한자 분해 및 어원</p>
-            <p id="modal-hanja-breakdown" class="text-xs font-medium text-[#414A35] leading-relaxed break-keep"></p>
+          <div id="modal-hanja-area" class="bg-[#8BA175]/10 rounded-2xl p-6 border border-[#8BA175]/30 hidden mt-2">
+            <p class="text-xs text-[#5C664C] font-bold mb-2 pl-1 tracking-widest">한자 분해 및 어원</p>
+            <p id="modal-hanja-breakdown" class="text-sm font-medium text-[#414A35] leading-loose break-keep pl-1"></p>
           </div>
         </div>
       </div>
