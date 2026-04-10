@@ -371,7 +371,7 @@ async function loadNextWord() {
   elements.wordFrontHanja.textContent = currentWord.hanja && currentWord.hanja !== "고유어" ? `(${currentWord.hanja})` : "";
   
   // 이전에 Back에 떴던 내용 초기화
-  elements.wordBackMeaningBasic.textContent = currentWord.meaning;
+  elements.wordBackMeaningBasic.textContent = "-";
   elements.wordBackMeaningDetailed.textContent = "";
   elements.wordBackHanjaBreakdown.textContent = "";
   elements.hanjaBreakdownArea.classList.add('hidden');
@@ -527,6 +527,7 @@ function flipCardAndShowFeedback(aiGrade) {
   isFlipped = true;
   
   // 뒤집어지고 세팅될 데이터 (AI 문맥에서 가져온 상세 해설)
+  elements.wordBackMeaningBasic.textContent = currentWord.meaning || currentAiContext.basicMeaning || currentAiContext.detailedMeaning || "정보가 없습니다.";
   elements.wordBackMeaningDetailed.textContent = currentAiContext.detailedMeaning || "-";
   if (currentAiContext.hanjaBreakdown && currentAiContext.hanjaBreakdown.trim() !== "") {
     elements.wordBackHanjaBreakdown.textContent = currentAiContext.hanjaBreakdown;
