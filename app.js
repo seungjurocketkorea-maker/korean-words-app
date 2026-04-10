@@ -5,7 +5,7 @@ const elements = {
   statPending: document.getElementById('stat-pending'),
   statLearning: document.getElementById('stat-learning'),
   statMastered: document.getElementById('stat-mastered'),
-  
+
   cardContainer: document.getElementById('word-card-container'),
   cardInner: document.getElementById('word-card-inner'),
   wordFront: document.getElementById('word-front'),
@@ -22,11 +22,11 @@ const elements = {
   wordBackHanjaBreakdown: document.getElementById('word-back-hanja-breakdown'),
   wordBackMeaning: document.getElementById('word-back-meaning'),
   wordBackExample: document.getElementById('word-back-example'),
-  
+
   btnSubmit: document.getElementById('btn-submit'),
   btnContainerActions: document.getElementById('btn-container-actions'),
   btnContainerNext: document.getElementById('btn-container-next'),
-  
+
   btnMarkPending: document.getElementById('btn-mark-pending'),
   btnMarkLearning: document.getElementById('btn-mark-learning'),
   btnMarkMastered: document.getElementById('btn-mark-mastered'),
@@ -63,8 +63,8 @@ function loadData() {
       words = parsed;
     }
   } else {
-      words = [...dummyData];
-      saveData();
+    words = [...dummyData];
+    saveData();
   }
 }
 
@@ -96,7 +96,7 @@ function getNextWordToStudy() {
   if (candidates.length === 0) {
     candidates = words.filter(w => w.status === 'pending');
   }
-  
+
   if (candidates.length === 0) return null;
   const randomIndex = Math.floor(Math.random() * candidates.length);
   return candidates[randomIndex];
@@ -104,13 +104,13 @@ function getNextWordToStudy() {
 
 function loadNextWord() {
   currentWord = getNextWordToStudy();
-  
+
   if (!currentWord) {
     elements.cardArea.classList.add('hidden');
     elements.emptyState.classList.remove('hidden');
     return;
   }
-  
+
   elements.cardArea.classList.remove('hidden');
   elements.emptyState.classList.add('hidden');
 
@@ -126,21 +126,21 @@ function loadNextWord() {
   elements.btnSubmit.disabled = false;
   elements.loadingIndicator.classList.add('hidden');
   elements.loadingIndicator.classList.remove('flex');
-  
+
   elements.userMeaningInput.focus();
 
   elements.wordFront.textContent = currentWord.word;
   elements.wordFrontHanja.textContent = currentWord.hanja && currentWord.hanja !== "고유어" ? `(${currentWord.hanja})` : "";
   elements.wordFrontHanjaMeaning.textContent = currentWord.hanjaMeaning || "";
   elements.wordFrontExample.textContent = `"${currentWord.example}"`;
-  
+
   elements.hanjaBreakdownArea.classList.add('hidden');
 }
 
 // Interactivity / Form Submit
 async function submitAnswer() {
   if (!currentWord || isFlipped || isLoading) return;
-  
+
   const userAnswer = elements.userMeaningInput.value.trim();
   if (!userAnswer) {
     alert('단어의 뜻을 먼저 입력해주세요!');
@@ -161,53 +161,61 @@ async function submitAnswer() {
 
   // Parse Result & Show Back
   renderAIResult(aiResult);
-  
+
   isLoading = false;
   elements.loadingIndicator.classList.add('hidden');
   elements.loadingIndicator.classList.remove('flex');
-  
+
   // Flip Card
   isFlipped = true;
   elements.cardContainer.classList.add('card-flipped');
-  
+
   setTimeout(() => {
     elements.btnSubmit.classList.add('hidden');
     elements.btnContainerActions.classList.remove('hidden');
   }, 150);
 }
 
-// AI Mock function (Will be replaced with real logic)
+const WORKER_URL = "https://korean-words.seungju-rocketkorea.workers.dev"; // 예: https://your-worker.your-username.workers.dev
+
+// AI 통신 함수 (실제 연결)
 async function checkAnswerWithAI(wordObject, userAnswer) {
-  // 실제 연동 전, 1.5초 대기하며 결과 모의(Mocking)
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      let isCorrect = "incorrect";
-      let message = "원래 의미와는 조금 거리가 있네요. 정답을 확인해보세요.";
-      const correctMeaning = wordObject.meaning;
-      const threshold = correctMeaning.length > 5 ? 4 : 2;
-      
-      if (userAnswer.length >= correctMeaning.length * 0.8) {
-        isCorrect = "correct";
-        message = "완벽합니다! 맥락을 아주 잘 파악하셨어요.";
-      } else if (userAnswer.length >= threshold) {
-        isCorrect = "partial";
-        message = "어느 정도 의미는 통하지만, 정확한 뉘앙스는 다를 수 있어요.";
-      }
+  if (WORKER_URL === "https://korean-words.seungju-rocketkorea.workers.dev/") {
+    alert("app.js 코드에서 WORKER_URL을 실제 복사하신 주소로 변경해주세요!");
+    throw new Error("Worker URL not configured");
+  }
 
-      let breakDownText = "";
-      if (wordObject.hanja && wordObject.hanja !== "고유어") {
-        breakDownText = `${wordObject.hanja} : AI가 이 한자의 음과 뜻을 분리하여 설명해주고, 왜 이런 뜻이 되었는지 풀이해 줍니다.`;
-      }
+  try {
+    const response = await fetch(WORKER_URL, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        word: wordObject.word,
+        userAnswer: userAnswer
+      })
+    });
 
-      resolve({
-        isCorrect: isCorrect,
-        feedback: message,
-        exactMeaning: correctMeaning,
-        exampleSentence: `AI가 새롭게 생성한 예문: <strong>${wordObject.word}</strong>를 이렇게 쓸 수도 있어요.`,
-        hanjaBreakdown: breakDownText
-      });
-    }, 1500);
-  });
+    if (!response.ok) {
+      throw new Error(`Worker Error: ${response.status}`);
+    }
+
+    const aiResult = await response.json();
+    // aiResult에는 isCorrect, feedback, exactMeaning, exampleSentence, hanjaBreakdown 이 담겨 옴
+    return aiResult;
+
+  } catch (error) {
+    console.error("AI 요청 실패:", error);
+    // 통신 오류 시 임시 결과 반환하여 화면이 깨지지 않도 방지
+    return {
+      isCorrect: "incorrect",
+      feedback: "서버/AI 통신 중 오류가 발생했습니다. 개발자 도구(F12) 콘솔을 확인해주세요.",
+      exactMeaning: "통신 오류",
+      exampleSentence: "-",
+      hanjaBreakdown: "-"
+    };
+  }
 }
 
 function renderAIResult(aiResult) {
@@ -242,13 +250,13 @@ function renderAIResult(aiResult) {
 
 function updateWordStatus(newStatus) {
   if (!currentWord) return;
-  
+
   const index = words.findIndex(w => w.id === currentWord.id);
   if (index !== -1) {
     words[index].status = newStatus;
     saveData();
   }
-  
+
   elements.btnContainerActions.classList.add('hidden');
   elements.btnContainerNext.classList.remove('hidden');
 }
