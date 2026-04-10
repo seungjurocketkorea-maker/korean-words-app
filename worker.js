@@ -52,12 +52,15 @@ export default {
 
       let promptText = "";
 
+      // 캐시 키 생성 (품사가 있으면 구분)
+      const cacheKey = pos ? `${word}_${pos}` : word;
+
       // KV 데이터베이스 캐시 확인 로직 (context 요청인 경우에만)
       if (action === "context" && env.AI_CACHE) {
         try {
-          const cachedVal = await env.AI_CACHE.get(word);
+          const cachedVal = await env.AI_CACHE.get(cacheKey);
           if (cachedVal) {
-             const userNote = await env.AI_CACHE.get(`note_${word}`) || "";
+             const userNote = await env.AI_CACHE.get(`note_${cacheKey}`) || "";
              const obj = JSON.parse(cachedVal);
              obj.userNote = userNote;
             // 서버 캐시에 있으면 즉시 반환 (제미나이 통신 X)
@@ -122,8 +125,9 @@ export default {
           return new Response(JSON.stringify({ error: "KV DB not available" }), { status: 500, headers: corsHeaders });
         }
         try {
-          // note 필드가 넘어온다고 가정 (body.note) - 위에서 추출하지 않았으므로 body 사용 가능
-          await env.AI_CACHE.put(`note_${word}`, body.note || "");
+          const noteKey = pos ? `note_${word}_${pos}` : `note_${word}`;
+          // note 필드가 넘어온다고 가정 (body.note)
+          await env.AI_CACHE.put(noteKey, body.note || "");
           return new Response(JSON.stringify({ success: true }), {
             status: 200,
             headers: { ...corsHeaders, 'Content-Type': 'application/json' },
@@ -160,7 +164,7 @@ JSON 파싱 가능한 형태로만 반환하라.
 
         promptText = `
 너는 고등학생의 수능 국어/고급 어휘 학습을 도와주는 친절한 전담 국어교사야.
-문제로 나온 단어는 "${word}" 이며, (해당 단어의 원래 뜻은 "${meaning || ''}" 이야).
+문제로 나온 단어는 "${word}" 이며, 품사는 "${pos || '알 수 없음'}" 이야. (해당 단어의 원래 뜻은 "${meaning || ''}" 이야).
 학생이 제출한 이 단어의 뜻풀이는 다음과 같아:
 "${userAnswer}"
 
@@ -217,10 +221,10 @@ JSON 파싱 가능한 형태로만 반환하라.
       if (action === "context" && env.AI_CACHE) {
         try {
           // 캐시 저장
-          await env.AI_CACHE.put(word, JSON.stringify(resultObj));
+          await env.AI_CACHE.put(cacheKey, JSON.stringify(resultObj));
           
           // 사용자가 작성한 노트가 캐시되어 있으면 결과 객체에 다시 붙여서 프론트로 보냄
-          const userNote = await env.AI_CACHE.get(`note_${word}`) || "";
+          const userNote = await env.AI_CACHE.get(`note_${cacheKey}`) || "";
           resultObj.userNote = userNote;
           
         } catch (kvError) {

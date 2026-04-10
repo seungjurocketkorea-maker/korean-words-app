@@ -536,56 +536,57 @@ function getNextWordToStudy() {
   
   if (pool.length === 0) return null;
 
-  const wrongPool = [];
-  const learningPool = [];
-  const activePool = []; // 한번도 안본 단어 (REVIEW 탭에선 비어있음)
-  const masteredPool = [];
-
   const now = Date.now();
 
+  if (currentLevel !== 'REVIEW') {
+    // 1. 일반 단계 학습: 오직 공부한 적 없는 (pending 상태인) "새 단어"만 순서대로 출제
+    const activePool = pool.filter(w => {
+      const record = userProgress[w.id];
+      return !record || record.status === 'pending';
+    });
+    
+    if (activePool.length === 0) return null; // 해당 등급 마스터
+    return activePool[0]; // 순서대로 (빈도 높은 순) 반환
+  }
+
+  // 2. 내 복습장 (REVIEW) 모드: 오직 1번 이상 채점해서 기록이 생긴 풀에서만 출제
+  const wrongPool = [];
+  const learningPool = [];
+  const masteredPool = [];
+
   pool.forEach(w => {
-    const record = userProgress[w.id] || { status: 'pending', nextReview: 0 };
+    const record = userProgress[w.id];
+    if (!record || record.status === 'pending') return;
+
     if (record.status === 'wrong') {
       if (now >= record.nextReview) wrongPool.push(w);
     } else if (record.status === 'learning') {
       if (now >= record.nextReview) learningPool.push(w);
     } else if (record.status === 'mastered') {
       if (now >= record.nextReview) masteredPool.push(w);
-    } else {
-      activePool.push(w);
     }
   });
 
-  // 비율 기반 뽑기
+  // 비율 기반 뽑기 (틀린 거 우선)
   let r = Math.random();
   let candidateGroup = [];
 
-  if (r < 0.5 && wrongPool.length > 0) candidateGroup = wrongPool;
-  else if (r < 0.8 && learningPool.length > 0) candidateGroup = learningPool;
-  else if (r < 0.95 && activePool.length > 0) candidateGroup = activePool;
+  if (r < 0.6 && wrongPool.length > 0) candidateGroup = wrongPool;
+  else if (r < 0.9 && learningPool.length > 0) candidateGroup = learningPool;
   else if (masteredPool.length > 0) candidateGroup = masteredPool;
   
   // 대체 그룹 보정
   if (candidateGroup.length === 0) {
     if (wrongPool.length > 0) candidateGroup = wrongPool;
     else if (learningPool.length > 0) candidateGroup = learningPool;
-    else if (activePool.length > 0) candidateGroup = activePool;
     else if (masteredPool.length > 0) candidateGroup = masteredPool;
   }
   
-  // 그래도 없으면, 랜덤 강제가 아니라 풀의 앞쪽(빈도수 1등)을 뽑음
-  if (candidateGroup.length === 0) {
-    candidateGroup = pool; 
-  }
+  if (candidateGroup.length === 0) return null; // 당장 복습 주기 도달한 단어가 없음
 
-  if (candidateGroup === activePool || candidateGroup === pool) {
-    // 한 번도 안 본 단어 그룹이라면, 랜덤이 아니라 무조건 순위가 빠른 순서부터(index 0) 먼저 뽑음 (정렬 완료된 상태)
-    return candidateGroup[0];
-  } else {
-    // 복습 단어(틀린단어, 학습중) 그룹이면 아무렇게나 하나를 섞어서 뽑음
-    const randomIndex = Math.floor(Math.random() * candidateGroup.length);
-    return candidateGroup[randomIndex];
-  }
+  // 복습 단어 그룹 안에서 무작위 출제
+  const randomIndex = Math.floor(Math.random() * candidateGroup.length);
+  return candidateGroup[randomIndex];
 }
 
 // ==========================================
@@ -729,6 +730,7 @@ async function submitAnswer() {
         action: "grade",
         word: currentWord.word,
         meaning: currentWord.meaning,
+        pos: currentWord.pos,
         userAnswer: userAnswerText
       })
     });
@@ -930,6 +932,7 @@ async function saveUserNote() {
       body: JSON.stringify({
         action: "save_note",
         word: currentWord.word,
+        pos: currentWord.pos,
         note: noteText
       })
     });

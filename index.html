@@ -25,21 +25,24 @@
     </div>
   </header>
 
-  <!-- 컨텐츠 양분 컨테이너 -->
-  <div class="grid grid-cols-1 xl:grid-cols-[1fr_360px] gap-x-8 gap-y-0 w-full max-w-[1060px] mx-auto relative items-start justify-center flex-1">
+  <!-- 컨텐츠 양분 컨테이너 (Flex 방식) -->
+  <div class="flex flex-col xl:flex-row gap-8 w-full max-w-[1060px] mx-auto relative items-start justify-center flex-1">
     
-    <!-- 1단계 학습 현황 -->
-    <section class="w-full flex justify-between items-center px-2 mb-4 hidden xl:col-start-1 xl:row-start-1" id="stats-section">
-      <h2 id="stats-title" class="text-sm font-medium text-[#586e75]">현재 등급 학습 현황</h2>
-      <div class="flex gap-4 text-xs font-medium text-[#93a1a1]">
-        <span>미학습/틀림 <span id="stat-pending" class="text-[#5c594c] ml-1">0</span></span>
-        <span>학습 중 <span id="stat-learning" class="text-[#2aa198] ml-1">0</span></span>
-        <span>완벽 암기 <span id="stat-mastered" class="text-[#268bd2] ml-1">0</span></span>
-      </div>
-    </section>
+    <!-- 왼쪽 학습 영역 래퍼 -->
+    <div class="flex flex-col flex-1 w-full max-w-2xl mx-auto xl:max-w-none justify-start">
+      
+      <!-- 1단계 학습 현황 -->
+      <section class="w-full flex justify-between items-center px-2 mb-4 hidden" id="stats-section">
+        <h2 id="stats-title" class="text-sm font-medium text-[#586e75]">현재 등급 학습 현황</h2>
+        <div class="flex gap-4 text-xs font-medium text-[#93a1a1]">
+          <span>미학습/틀림 <span id="stat-pending" class="text-[#5c594c] ml-1">0</span></span>
+          <span>학습 중 <span id="stat-learning" class="text-[#2aa198] ml-1">0</span></span>
+          <span>완벽 암기 <span id="stat-mastered" class="text-[#268bd2] ml-1">0</span></span>
+        </div>
+      </section>
 
-    <!-- 메인 앱 컨테이너 (왼쪽) -->
-    <main class="w-full max-w-2xl xl:max-w-none space-y-4 flex flex-col xl:col-start-1 xl:row-start-2 place-self-center xl:place-self-stretch relative">
+      <!-- 실제 메인 카드 컨테이너 -->
+      <main class="w-full space-y-4 flex flex-col relative">
 
     <!-- Review List View Area -->
     <section id="review-list-section" class="hidden flex-col items-center">
@@ -249,11 +252,11 @@
     </div>
   </div>
 
-  </main> <!-- /메인 끝 -->
+      </main> <!-- /메인 끝 -->
+    </div> <!-- /왼쪽 래퍼 끝 -->
 
-  <!-- 미니 사전 패널 (오른쪽/모바일 슬라이드) -->
-  <aside id="dict-panel" class="fixed bottom-0 left-0 w-full bg-[#fdf6e3] rounded-t-3xl shadow-[0_-10px_40px_rgba(0,0,0,0.1)] border-t border-[#eee8d5] transform translate-y-full transition-transform duration-300 z-50 
-                                xl:col-start-2 xl:row-start-2 xl:static xl:translate-y-0 xl:w-[360px] xl:rounded-2xl xl:shadow-sm xl:border xl:border-[#93a1a1] xl:h-fit xl:max-h-[800px] xl:sticky xl:top-10 flex flex-col flex-shrink-0">
+  <!-- 미니 사전 패널 (오른쪽/모바일은 그냥 아래 배치) -->
+  <aside id="dict-panel" class="w-full xl:w-[360px] bg-[#fdf6e3] rounded-3xl xl:rounded-2xl shadow-sm border border-[#eee8d5] xl:border-[#93a1a1] flex flex-col flex-shrink-0 h-fit max-h-[800px] mb-10 xl:mb-0">
     <div class="p-4 border-b border-[#eee8d5] flex justify-between items-center bg-[#eee8d5]/40 xl:rounded-t-2xl">
       <span class="text-sm font-medium font-serif flex items-center gap-2 text-[#586e75]">
         <svg class="w-4 h-4 text-[#859900]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path></svg>
