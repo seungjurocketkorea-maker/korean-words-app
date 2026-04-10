@@ -46,3 +46,13 @@
 3. 곧바로 1,000개의 엄선된 국어 단어 학습을 시작할 수 있습니다.
 
 *(참고: AI 통신 및 채점 서버는 Cloudflare Workers 환경에 이미 배포되어 연결되어 있으므로 즉시 작동합니다.)*
+
+---
+
+<div align="center">
+  <br/>
+  <sub>
+    <b>Designed & Developed by Seungju Ko in 2026.</b><br/>
+    Powered by <b>Google Gemini AI</b> to provide an immersive and intelligent learning experience.
+  </sub>
+</div>
