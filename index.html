@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>국어 단어 마스터 1000</title>
+  <title>국어 단어 마스터 1000 - Anki Style</title>
   
   <script src="https://unpkg.com/@tailwindcss/browser@4"></script>
   <link rel="stylesheet" href="style.css" />
@@ -11,85 +11,83 @@
 <body class="min-h-screen flex flex-col items-center py-10 px-4">
 
   <header class="w-full max-w-2xl mb-8 text-center">
-    <h1 class="text-4xl font-bold font-serif text-[#3B392E] mb-3 tracking-tight">국어 단어 마스터 1000</h1>
-    <p class="text-[#84806A] text-sm font-medium">우리말의 다채로운 뉘앙스와 깊이를 내 것으로</p>
+    <h1 class="text-4xl font-bold font-serif text-[#3B392E] mb-3 tracking-tight">AI 단어장 마스터</h1>
+    <p class="text-[#84806A] text-sm font-medium">스마트 복습 알고리즘으로 확실하게 내 것으로 만드세요</p>
+    
+    <!-- Level Selector -->
+    <div id="level-tabs" class="flex justify-center flex-wrap gap-2 mt-6">
+      <!-- Tabs will be dynamically inserted here by app.js -->
+    </div>
   </header>
 
-  <main class="w-full max-w-2xl space-y-6">
+  <main class="w-full max-w-2xl space-y-8">
     
-    <!-- Grade Selector -->
-    <div id="grade-selector" class="flex flex-wrap gap-2 justify-center mb-2">
-      <!-- Buttons will be injected here dynamically -->
-    </div>
-
-    <section class="glass-panel rounded-3xl p-6 relative overflow-hidden">
+    <section class="glass-panel rounded-3xl p-6 relative overflow-hidden hidden" id="stats-section">
       <!-- Glow effect (Olive & Orange tones) -->
       <div class="absolute -top-10 -right-10 w-32 h-32 bg-[#8ba175] rounded-full mix-blend-multiply filter blur-3xl opacity-20"></div>
       <div class="absolute -bottom-10 -left-10 w-32 h-32 bg-[#D98C63] rounded-full mix-blend-multiply filter blur-3xl opacity-20"></div>
       
       <div class="flex justify-between items-end mb-4 relative z-10">
         <div>
-          <h2 class="text-lg font-bold text-[#3B392E]">나의 마스터 진척도</h2>
-          <p class="text-xs text-[#84806A] mt-1">1000개의 단어 중 <span id="progress-text" class="font-bold text-[#6A7B54]">0%</span> 마스터</p>
+          <h2 class="text-lg font-bold text-[#3B392E]">현재 등급 학습 현황</h2>
         </div>
-      </div>
-
-      <div class="w-full bg-[#D6D2BF] h-3 rounded-full mb-6 overflow-hidden relative z-10">
-        <div id="progress-bar" class="bg-gradient-to-r from-[#8ba175] to-[#D98C63] h-3 rounded-full progress-bar-fill" style="width: 0%"></div>
       </div>
 
       <div class="grid grid-cols-3 gap-4 text-center relative z-10">
         <div class="bg-white/50 backdrop-blur-sm rounded-2xl py-3 border border-[#E0DBC5]">
-          <p class="text-xs text-[#84806A] font-semibold mb-1 uppercase tracking-wider">대기</p>
+          <p class="text-xs text-[#84806A] font-semibold mb-1 uppercase tracking-wider">미학습/틀림</p>
           <p id="stat-pending" class="text-2xl font-bold text-[#5c594c]">0</p>
         </div>
         <div class="bg-white/50 backdrop-blur-sm rounded-2xl py-3 border border-[#E0DBC5]">
-          <p class="text-xs text-[#84806A] font-semibold mb-1 uppercase tracking-wider">학습 중</p>
+          <p class="text-xs text-[#84806A] font-semibold mb-1 uppercase tracking-wider">애매함</p>
           <p id="stat-learning" class="text-2xl font-bold text-[#6A7B54]">0</p>
         </div>
         <div class="bg-white/50 backdrop-blur-sm rounded-2xl py-3 border border-[#E0DBC5]">
-          <p class="text-xs text-[#84806A] font-semibold mb-1 uppercase tracking-wider">마스터</p>
+          <p class="text-xs text-[#84806A] font-semibold mb-1 uppercase tracking-wider">완벽 암기</p>
           <p id="stat-mastered" class="text-2xl font-bold text-[#C47D57]">0</p>
         </div>
       </div>
     </section>
 
-    <section id="card-area" class="flex flex-col items-center">
+    <section id="card-area" class="flex flex-col items-center hidden">
       
       <div id="word-card-container" class="perspective-1000 w-full group">
-        <div id="word-card-inner" class="card-inner transform-style-3d relative w-full min-h-[420px] grid shadow-xl rounded-3xl group-hover:shadow-2xl transition-shadow duration-300">
+        <div id="word-card-inner" class="card-inner transform-style-3d relative w-full min-h-[420px] grid shadow-xl rounded-3xl transition-shadow duration-300">
           
+          <!-- Front Side -->
           <div class="col-start-1 row-start-1 backface-hidden h-full bg-[#FAF8F0] rounded-3xl flex flex-col justify-start items-center p-8 border border-[#E0DBC5]">
-            <h3 id="word-front" class="text-3xl font-bold font-serif text-[#3B392E] mt-2 mb-1">단어</h3>
-            <p id="word-front-hanja" class="text-base text-[#8A887A] font-medium tracking-widest mb-1"></p>
-            <p id="word-front-hanja-meaning" class="text-xs text-[#6A7B54] font-medium tracking-wide mb-3"></p>
+            <h3 id="word-front" class="text-4xl font-bold font-serif text-[#3B392E] mt-4 mb-2">단어</h3>
+            <p id="word-front-pos" class="text-sm font-bold text-[#C47D57] bg-[#F5EFEA] px-2 py-1 rounded-md mb-2"></p>
+            <p id="word-front-hanja" class="text-lg text-[#8A887A] font-medium tracking-widest mb-6"></p>
             
-            <div id="word-front-examples" class="text-sm text-stone-700 bg-[#EAE6D6] p-4 rounded-xl w-full mb-4 break-keep italic space-y-2 hidden">
-              <!-- AI generated examples will be injected here -->
-            </div>
-            
-            <div id="loading-indicator" class="hidden w-full flex-col items-center justify-center mt-6 text-[#8ba175]">
+            <div id="loading-indicator" class="flex w-full flex-col items-center justify-center mt-6 text-[#8A887A]">
               <div class="w-8 h-8 border-4 border-[#8ba175] border-t-transparent rounded-full animate-spin mb-3"></div>
-              <p class="text-sm font-bold animate-pulse">AI가 이 단어의 예문을 만들고 있어요...</p>
+              <p class="text-sm font-medium animate-pulse">AI가 실생활 예문을 만들고 있어요...</p>
             </div>
 
-            <div id="think-hint" class="hidden w-full text-center mt-4">
-              <p class="text-[#8A887A] text-sm font-medium">💡 위 예문들을 보고 단어의 뜻을 유추해 보세요!</p>
+            <div id="front-examples-area" class="w-full hidden flex-col items-center">
+              <p class="text-xs text-[#84806A] font-bold mb-3 uppercase tracking-widest">💡 예문을 보고 뜻을 유추해보세요</p>
+              <ul id="word-front-examples" class="text-[0.95rem] text-left w-full text-stone-700 bg-[#EAE6D6]/50 border border-[#D6D2BF] p-5 rounded-xl mb-4 space-y-3 break-keep leading-relaxed list-disc list-inside">
+              </ul>
             </div>
           </div>
 
-          <div class="col-start-1 row-start-1 rotate-y-180 backface-hidden h-full glass-panel rounded-3xl flex flex-col p-6 border-t border-l border-white/80 bg-gradient-to-br from-[#EAE6D6]/30 to-[#FAF8F0]">
-            <div class="flex flex-col h-full">
-              <div class="flex-1 flex flex-col space-y-3 justify-center mt-2">
-                <div class="bg-white/60 rounded-xl p-5 shadow-sm border border-[#E0DBC5]/50 flex-1">
-                  <p class="text-xs text-[#D98C63] font-bold mb-2 uppercase tracking-widest">정답 뜻풀이</p>
-                  <p id="word-back-meaning" class="text-lg font-bold text-stone-800 leading-relaxed break-keep"></p>
-                  <p id="word-back-nuance" class="text-sm text-[#6A7B54] mt-3 break-keep"></p>
-                </div>
-                <div id="hanja-breakdown-area" class="bg-[#E5EAD8]/60 rounded-xl p-5 border border-[#D4DEC9] hidden">
-                  <p class="text-xs text-[#7A8B63] font-bold mb-2 uppercase tracking-widest">한자 뜻풀이</p>
-                  <p id="word-back-hanja-breakdown" class="text-sm font-medium text-[#414A35] leading-relaxed break-keep"></p>
-                </div>
+          <!-- Back Side -->
+          <div class="col-start-1 row-start-1 rotate-y-180 backface-hidden h-full glass-panel rounded-3xl flex flex-col p-8 border-t border-l border-white/80 bg-gradient-to-br from-[#EAE6D6]/30 to-[#FAF8F0]">
+            <div class="flex flex-col h-full space-y-4">
+              <div class="bg-white/70 rounded-xl p-5 border border-[#E0DBC5]/50 shadow-sm">
+                <p class="text-xs text-[#8A887A] font-bold mb-2 uppercase tracking-widest">실제 뜻 (사전)</p>
+                <p id="word-back-meaning-basic" class="text-lg font-bold text-stone-800 break-keep leading-snug"></p>
+              </div>
+
+              <div class="bg-white/70 rounded-xl p-5 border border-[#E0DBC5]/50 shadow-sm">
+                <p class="text-xs text-[#8A887A] font-bold mb-2 uppercase tracking-widest">AI 상세 해설 & 뉘앙스</p>
+                <p id="word-back-meaning-detailed" class="text-base font-medium text-stone-700 leading-relaxed break-keep"></p>
+              </div>
+              
+              <div id="hanja-breakdown-area" class="bg-[#8BA175]/10 rounded-xl p-5 border border-[#8BA175]/20">
+                <p class="text-xs text-[#6A7B54] font-bold mb-2 uppercase tracking-widest">한자 분해 및 어원</p>
+                <p id="word-back-hanja-breakdown" class="text-sm font-medium text-[#414A35] leading-relaxed break-keep"></p>
               </div>
             </div>
           </div>
@@ -99,38 +97,38 @@
 
       <div class="mt-8 w-full max-w-sm">
         
-        <button id="btn-submit" class="w-full py-4 rounded-2xl bg-[#5C664C] text-[#F5F2E6] font-medium shadow-lg shadow-[#5C664C]/20 hover:bg-[#4a523d] transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
-          정답 확인하기
+        <button id="btn-reveal" class="w-full py-4 rounded-2xl bg-[#5C664C] text-[#F5F2E6] font-medium shadow-lg shadow-[#5C664C]/20 hover:bg-[#4a523d] transition-transform active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed hidden">
+          단어 뜻 확인하기 (뒤집기)
         </button>
 
-        <div id="btn-container-actions" class="hidden flex gap-3 w-full">
-          <button id="btn-mark-wrong" class="flex-1 py-3 bg-[#FAF8F0] text-stone-700 rounded-2xl border border-[#D6D2BF] font-bold transition-colors hover:bg-white shadow-sm hover:shadow-md">
-            아예 틀림<br><span class="text-xs font-normal text-stone-500">자주 출제</span>
+        <!-- Anki Style 3 Buttons -->
+        <div id="btn-container-actions" class="hidden flex gap-2 w-full">
+          <button id="btn-mark-wrong" class="flex-1 py-4 bg-[#F5E6E6] text-[#A64B4B] rounded-xl border border-[#E8C5C5] font-bold transition-transform active:scale-95 hover:bg-[#EDD4D4] flex flex-col items-center justify-center">
+            <span>틀렸음</span>
+            <span class="text-[0.65rem] font-normal mt-1 opacity-80">(자주 반복)</span>
           </button>
-          <button id="btn-mark-learning" class="flex-1 py-3 bg-[#E8EDE1] text-[#556343] rounded-2xl border border-[#D4DEC9] font-bold transition-colors hover:bg-[#DEE6D5] shadow-sm hover:shadow-md">
-            애매함<br><span class="text-xs font-normal opacity-80">보통 출제</span>
+          
+          <button id="btn-mark-partial" class="flex-1 py-4 bg-[#F0EFDF] text-[#7A7555] rounded-xl border border-[#DEDCBE] font-bold transition-transform active:scale-95 hover:bg-[#E8E6CC] flex flex-col items-center justify-center">
+            <span>애매함</span>
+            <span class="text-[0.65rem] font-normal mt-1 opacity-80">(종종 반복)</span>
           </button>
-          <button id="btn-mark-mastered" class="flex-1 py-3 bg-[#D98C63] text-white rounded-2xl font-bold shadow-lg shadow-[#D98C63]/30 transition-colors hover:bg-[#C47D57]">
-            완전 맞힘<br><span class="text-xs font-normal opacity-90">가끔 출제</span>
+          
+          <button id="btn-mark-correct" class="flex-1 py-4 bg-[#E2EAD8] text-[#4F633B] rounded-xl border border-[#C5D6B6] font-bold transition-transform active:scale-95 hover:bg-[#D5E0C7] flex flex-col items-center justify-center shadow-md">
+            <span>맞혔음</span>
+            <span class="text-[0.65rem] font-normal mt-1 opacity-80">(드물게 반복)</span>
           </button>
         </div>
 
-        <div id="btn-container-next" class="hidden w-full">
-          <button id="btn-next" class="w-full py-4 bg-[#5C664C] text-[#F5F2E6] rounded-2xl font-medium shadow-lg shadow-[#5C664C]/20 hover:bg-[#4a523d] transition-colors flex items-center justify-center gap-2">
-            다음 단어 
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
-          </button>
-        </div>
       </div>
 
     </section>
 
-    <section id="empty-state" class="hidden glass-panel rounded-3xl p-12 text-center flex flex-col items-center">
+    <section id="empty-state" class="glass-panel rounded-3xl p-12 text-center flex flex-col items-center">
       <div class="w-20 h-20 bg-[#E8EDE1] text-[#6A7B54] rounded-full flex items-center justify-center mb-6">
-        <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+        <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path></svg>
       </div>
-      <h3 class="text-3xl font-bold font-serif text-[#3B392E] mb-3">모든 단어를 마스터했습니다!</h3>
-      <p class="text-[#84806A]">대기 중이거나 학습 중인 단어가 없습니다.<br>수고하셨습니다 👏</p>
+      <h3 class="text-3xl font-bold font-serif text-[#3B392E] mb-3">학습할 등급을 선택해주세요</h3>
+      <p class="text-[#84806A]">위에서 A, B, C 등급 탭을 선택하면 단어 학습이 시작됩니다.</p>
     </section>
 
   </main>

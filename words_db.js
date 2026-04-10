@@ -3017,7 +3017,7 @@ const wordsDB = {
     },
     {
       "id": "word_207",
-      "word": "못04",
+      "word": "못",
       "hanja": "",
       "pos": "부",
       "meaning": "",

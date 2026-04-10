@@ -55,23 +55,3 @@ body {
 .progress-bar-fill {
   transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1);
 }
-
-/* 등급 선택 버튼 호버 효과 */
-#grade-selector button.active {
-  box-shadow: 0 4px 12px rgba(139, 161, 117, 0.3);
-}
-
-/* 카드 높이 유동적 대응을 위한 최소 높이 보장 */
-#word-card-inner {
-  height: auto;
-}
-
-/* 예문 텍스트 연하게 효과 */
-#word-front-examples p {
-  opacity: 0.9;
-}
-
-/* 정답 확인 버튼 강조 */
-#btn-submit:active {
-  transform: scale(0.98);
-}

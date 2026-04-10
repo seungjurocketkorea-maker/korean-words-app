@@ -1,276 +1,332 @@
-// DOM Elements
-const elements = {
-  progressBar: document.getElementById('progress-bar'),
-  progressText: document.getElementById('progress-text'),
-  statPending: document.getElementById('stat-pending'),
-  statLearning: document.getElementById('stat-learning'),
-  statMastered: document.getElementById('stat-mastered'),
+const STORAGE_KEY = 'korean_words_progress_v2';
+const WORKER_URL = "https://korean-words.seungju-rocketkorea.workers.dev/api/check"; // API 경로
 
-  gradeSelector: document.getElementById('grade-selector'),
-  cardContainer: document.getElementById('word-card-container'),
-  cardInner: document.getElementById('word-card-inner'),
-  wordFront: document.getElementById('word-front'),
-  wordFrontHanja: document.getElementById('word-front-hanja'),
-  wordFrontHanjaMeaning: document.getElementById('word-front-hanja-meaning'),
-  wordFrontExamples: document.getElementById('word-front-examples'),
-  loadingIndicator: document.getElementById('loading-indicator'),
-  thinkHint: document.getElementById('think-hint'),
-
-  wordBackMeaning: document.getElementById('word-back-meaning'),
-  wordBackNuance: document.getElementById('word-back-nuance'),
-  hanjaBreakdownArea: document.getElementById('hanja-breakdown-area'),
-  wordBackHanjaBreakdown: document.getElementById('word-back-hanja-breakdown'),
-
-  btnSubmit: document.getElementById('btn-submit'),
-  btnContainerActions: document.getElementById('btn-container-actions'),
-  btnContainerNext: document.getElementById('btn-container-next'),
-
-  btnMarkWrong: document.getElementById('btn-mark-wrong'),
-  btnMarkLearning: document.getElementById('btn-mark-learning'),
-  btnMarkMastered: document.getElementById('btn-mark-mastered'),
-  btnNext: document.getElementById('btn-next'),
-
-  emptyState: document.getElementById('empty-state'),
-  cardArea: document.getElementById('card-area')
-};
-
-// State
-let allWords = {}; // All words from words_db.js
-let currentLevel = 'A';
-let sessionWords = []; // Filtered words for current level
+let userProgress = {}; // { 'word_1195': { status: 'wrong|learning|mastered', nextReview: timestamp, errCount: 0 } }
+let currentLevel = null;
 let currentWord = null;
 let isFlipped = false;
 let isLoading = false;
+let currentAiData = null; // AI가 넘겨준 현재 단어의 데이터 저장
 
-// Config
-const WORKER_URL = "https://korean-words.seungju-rocketkorea.workers.dev/api/check";
+const elements = {
+  levelTabs: document.getElementById('level-tabs'),
+  statsSection: document.getElementById('stats-section'),
+  statPending: document.getElementById('stat-pending'),
+  statLearning: document.getElementById('stat-learning'),
+  statMastered: document.getElementById('stat-mastered'),
+  
+  cardArea: document.getElementById('card-area'),
+  emptyState: document.getElementById('empty-state'),
+  
+  cardContainer: document.getElementById('word-card-container'),
+  cardInner: document.getElementById('word-card-inner'),
+  wordFront: document.getElementById('word-front'),
+  wordFrontPos: document.getElementById('word-front-pos'),
+  wordFrontHanja: document.getElementById('word-front-hanja'),
+  loadingIndicator: document.getElementById('loading-indicator'),
+  frontExamplesArea: document.getElementById('front-examples-area'),
+  frontExamplesList: document.getElementById('word-front-examples'),
+  
+  wordBackMeaningBasic: document.getElementById('word-back-meaning-basic'),
+  wordBackMeaningDetailed: document.getElementById('word-back-meaning-detailed'),
+  wordBackHanjaBreakdown: document.getElementById('word-back-hanja-breakdown'),
+  hanjaBreakdownArea: document.getElementById('hanja-breakdown-area'),
+  
+  btnReveal: document.getElementById('btn-reveal'),
+  btnContainerActions: document.getElementById('btn-container-actions'),
+  
+  btnMarkWrong: document.getElementById('btn-mark-wrong'),
+  btnMarkPartial: document.getElementById('btn-mark-partial'),
+  btnMarkCorrect: document.getElementById('btn-mark-correct'),
+};
 
-// Initialize Application
-function init() {
+// ==========================================
+// 1. 초기화 및 레벨 탭 구성
+// ==========================================
+function initApp() {
+  loadProgress();
+
   if (typeof wordsDB === 'undefined') {
-    alert("words_db.js 파일을 찾을 수 없습니다. 변환기를 먼저 사용해주세요.");
+    alert("words_db.js 파일이 올바르게 로드되지 않았습니다!");
     return;
   }
-  
-  allWords = wordsDB;
-  loadStateFromStorage();
-  renderGradeButtons();
-  selectLevel(Object.keys(allWords)[0] || 'A'); // Default to first available level
-  setupEventListeners();
+
+  const levels = Object.keys(wordsDB).sort();
+  if (levels.length === 0) return;
+
+  levels.forEach(level => {
+    const btn = document.createElement('button');
+    btn.className = `px-6 py-2 rounded-full font-bold text-sm transition-all border shadow-sm tab-btn`;
+    btn.dataset.level = level;
+    btn.textContent = `${level} 등급`;
+    btn.addEventListener('click', () => selectLevel(level));
+    elements.levelTabs.appendChild(btn);
+  });
+
+  // 이벤트 리스너 등록
+  elements.btnReveal.addEventListener('click', flipCard);
+  elements.btnMarkWrong.addEventListener('click', () => submitGrade('wrong'));
+  elements.btnMarkPartial.addEventListener('click', () => submitGrade('learning'));
+  elements.btnMarkCorrect.addEventListener('click', () => submitGrade('mastered'));
 }
 
-function loadStateFromStorage() {
-  const stored = localStorage.getItem('kWordStudyState');
-  if (stored) {
-    const parsedState = JSON.parse(stored);
-    // Merge stored status back into allWords
-    Object.keys(parsedState).forEach(level => {
-      if (allWords[level]) {
-        parsedState[level].forEach(storedItem => {
-          const target = allWords[level].find(w => w.id === storedItem.id);
-          if (target) target.status = storedItem.status;
-        });
-      }
-    });
+function loadProgress() {
+  const saved = localStorage.getItem(STORAGE_KEY);
+  if (saved) {
+    try { userProgress = JSON.parse(saved); } catch(e) { userProgress = {}; }
+  } else {
+    // 마이그레이션 (기존 버전 호환은 생략하고 새로 시작)
+    userProgress = {};
   }
 }
 
-function saveStateToStorage() {
-  const stateToSave = {};
-  Object.keys(allWords).forEach(level => {
-    stateToSave[level] = allWords[level].map(w => ({ id: w.id, status: w.status }));
-  });
-  localStorage.setItem('kWordStudyState', JSON.stringify(stateToSave));
-  updateDashboard();
-}
-
-function renderGradeButtons() {
-  elements.gradeSelector.innerHTML = '';
-  Object.keys(allWords).sort().forEach(level => {
-    const btn = document.createElement('button');
-    btn.className = `px-4 py-2 rounded-full text-sm font-bold transition-all border ${level === currentLevel ? 'bg-[#5C664C] text-white border-[#5C664C]' : 'bg-white/50 text-[#84806A] border-[#E0DBC5] hover:bg-white'}`;
-    btn.textContent = `${level}등급`;
-    btn.onclick = () => selectLevel(level);
-    elements.gradeSelector.appendChild(btn);
-  });
+function saveProgress() {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(userProgress));
+  updateStats();
 }
 
 function selectLevel(level) {
   currentLevel = level;
-  sessionWords = allWords[level] || [];
-  renderGradeButtons();
-  updateDashboard();
+  
+  // 탭 스타일 액티브/인액티브 변경
+  document.querySelectorAll('.tab-btn').forEach(btn => {
+    if (btn.dataset.level === level) {
+      btn.classList.add('bg-[#5C664C]', 'text-[#F5F2E6]', 'border-[#5C664C]');
+      btn.classList.remove('bg-white/60', 'text-stone-500', 'border-[#D6D2BF]', 'hover:bg-white');
+    } else {
+      btn.classList.remove('bg-[#5C664C]', 'text-[#F5F2E6]', 'border-[#5C664C]');
+      btn.classList.add('bg-white/60', 'text-stone-500', 'border-[#D6D2BF]', 'hover:bg-white');
+    }
+  });
+
+  elements.statsSection.classList.remove('hidden');
+  updateStats();
   loadNextWord();
 }
 
-function updateDashboard() {
-  if (!sessionWords.length) return;
+function updateStats() {
+  if (!currentLevel) return;
+  const words = wordsDB[currentLevel] || [];
   
-  const total = sessionWords.length;
-  const pending = sessionWords.filter(w => w.status === 'pending').length;
-  const learning = sessionWords.filter(w => w.status === 'learning' || w.status === 'wrong').length;
-  const mastered = sessionWords.filter(w => w.status === 'mastered').length;
+  let pendingCount = 0;
+  let learningCount = 0;
+  let masteredCount = 0;
 
-  const progressPercent = total === 0 ? 0 : Math.round((mastered / total) * 100);
-  elements.progressBar.style.width = `${progressPercent}%`;
-  elements.progressText.textContent = `${progressPercent}%`;
+  words.forEach(w => {
+    const status = userProgress[w.id]?.status || 'pending';
+    if (status === 'mastered') masteredCount++;
+    else if (status === 'learning') learningCount++;
+    else pendingCount++; // wrong & pending
+  });
 
-  elements.statPending.textContent = pending;
-  elements.statLearning.textContent = learning;
-  elements.statMastered.textContent = mastered;
+  elements.statPending.textContent = pendingCount;
+  elements.statLearning.textContent = learningCount;
+  elements.statMastered.textContent = masteredCount;
 }
 
-// Logic: Get next word based on status (Spaced Repetition Style)
-function getNextWord() {
-  // Priority: 1. Wrong/Learning (80% chance) 2. Pending (15% chance) 3. Mastered (5% chance)
-  const poolWrong = sessionWords.filter(w => w.status === 'wrong');
-  const poolLearning = sessionWords.filter(w => w.status === 'learning');
-  const poolPending = sessionWords.filter(w => w.status === 'pending');
-  const poolMastered = sessionWords.filter(w => w.status === 'mastered');
+// ==========================================
+// 2. 단어 추출 (Spaced Repetition 형태)
+// ==========================================
+function getNextWordToStudy() {
+  const pool = wordsDB[currentLevel] || [];
+  if (pool.length === 0) return null;
 
-  const rand = Math.random();
-  let targetPool = [];
+  // 상태별 분류
+  const wrongPool = [];
+  const learningPool = [];
+  const activePool = []; // pending
+  const masteredPool = [];
 
-  if (rand < 0.7 && (poolWrong.length > 0 || poolLearning.length > 0)) {
-    targetPool = [...poolWrong, ...poolLearning];
-  } else if (rand < 0.9 && poolPending.length > 0) {
-    targetPool = poolPending;
-  } else if (poolMastered.length > 0) {
-    targetPool = poolMastered;
-  } else {
-    // If preferred pools are empty, fallback to any available pool in order
-    targetPool = poolWrong.length ? poolWrong : 
-                 poolLearning.length ? poolLearning : 
-                 poolPending.length ? poolPending : poolMastered;
+  pool.forEach(w => {
+    const record = userProgress[w.id] || { status: 'pending', nextReview: 0 };
+    // 리뷰 시간이 된 단어 분류 로직 단순화
+    const now = Date.now();
+    
+    if (record.status === 'wrong') wrongPool.push(w);
+    else if (record.status === 'learning') learningPool.push(w);
+    else if (record.status === 'mastered') {
+      if (now > record.nextReview) masteredPool.push(w);
+    }
+    else activePool.push(w);
+  });
+
+  // 비율 기반 뽑기 알고리즘 (Math.random)
+  // 틀린 틀림 50%, 애매함 30%, 새단어 15%, 마스터된 단어 복습 5%
+  let r = Math.random();
+  let candidateGroup = [];
+
+  if (r < 0.5 && wrongPool.length > 0) candidateGroup = wrongPool;
+  else if (r < 0.8 && learningPool.length > 0) candidateGroup = learningPool;
+  else if (r < 0.95 && activePool.length > 0) candidateGroup = activePool;
+  else if (masteredPool.length > 0) candidateGroup = masteredPool;
+  
+  // 만약 선택된 그룹이 비어있다면, 순차 강제 대체
+  if (candidateGroup.length === 0) {
+    if (activePool.length > 0) candidateGroup = activePool;
+    else if (wrongPool.length > 0) candidateGroup = wrongPool;
+    else if (learningPool.length > 0) candidateGroup = learningPool;
+    else candidateGroup = masteredPool; // 복습 시간 안 됐어도 그냥 출제
   }
 
-  if (!targetPool || targetPool.length === 0) return null;
-  return targetPool[Math.floor(Math.random() * targetPool.length)];
+  if (candidateGroup.length === 0) return null;
+  const randomIndex = Math.floor(Math.random() * candidateGroup.length);
+  return candidateGroup[randomIndex];
 }
 
+// ==========================================
+// 3. 단어 사이클 실행
+// ==========================================
 async function loadNextWord() {
-  currentWord = getNextWord();
-
+  currentWord = getNextWordToStudy();
+  
   if (!currentWord) {
     elements.cardArea.classList.add('hidden');
     elements.emptyState.classList.remove('hidden');
     return;
   }
-
+  
   elements.cardArea.classList.remove('hidden');
   elements.emptyState.classList.add('hidden');
 
-  // UI Initial State
+  // UI 리셋 (앞면)
   isFlipped = false;
-  isLoading = true;
   elements.cardContainer.classList.remove('card-flipped');
-  elements.btnContainerActions.classList.add('hidden');
-  elements.btnContainerNext.classList.add('hidden');
-  elements.btnSubmit.classList.remove('hidden');
-  elements.btnSubmit.disabled = true;
-  elements.wordFrontExamples.classList.add('hidden');
-  elements.thinkHint.classList.add('hidden');
-  elements.loadingIndicator.classList.remove('hidden');
-
-  // Text Front
-  elements.wordFront.textContent = currentWord.word;
-  elements.wordFrontHanja.textContent = currentWord.hanja ? `(${currentWord.hanja})` : "";
-  elements.wordFrontHanjaMeaning.textContent = ""; // Placeholder until AI/DB fully loaded
-
-  // Fetch AI Data (1-call)
-  try {
-    const aiData = await fetchAIInfo(currentWord);
-    renderFrontAI(aiData);
-    renderBackAI(aiData);
-  } catch (error) {
-    console.error("AI Fetch Failed:", error);
-    // Fallback if AI fails
-    renderFrontFallback();
-  } finally {
-    isLoading = false;
-    elements.loadingIndicator.classList.add('hidden');
-    elements.btnSubmit.disabled = false;
-  }
-}
-
-async function fetchAIInfo(wordObj) {
-  const response = await fetch(WORKER_URL, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      word: wordObj.word,
-      meaning: wordObj.meaning,
-      hanja: wordObj.hanja,
-      pos: wordObj.pos
-    })
-  });
-
-  if (!response.ok) throw new Error("Worker Error");
-  return await response.json();
-}
-
-function renderFrontAI(aiData) {
-  elements.wordFrontExamples.innerHTML = aiData.examples.map(ex => `<p>• ${ex}</p>`).join('');
-  elements.wordFrontExamples.classList.remove('hidden');
-  elements.thinkHint.classList.remove('hidden');
-}
-
-function renderBackAI(aiData) {
-  elements.wordBackMeaning.textContent = currentWord.meaning || "사전적 의미를 불러올 수 없습니다.";
-  elements.wordBackNuance.textContent = aiData.nuance || "";
-  
-  if (aiData.hanjaBreakdown) {
-    elements.hanjaBreakdownArea.classList.remove('hidden');
-    elements.wordBackHanjaBreakdown.textContent = aiData.hanjaBreakdown;
-  } else {
+  setTimeout(() => {
+    elements.btnReveal.classList.add('hidden');
+    elements.btnContainerActions.classList.add('hidden');
+    
+    elements.frontExamplesArea.classList.add('hidden');
+    elements.loadingIndicator.classList.remove('hidden');
+    elements.loadingIndicator.classList.add('flex');
+    
+    // Front Set
+    elements.wordFront.textContent = currentWord.word;
+    elements.wordFrontPos.textContent = currentWord.pos || "품사 없음";
+    elements.wordFrontHanja.textContent = currentWord.hanja && currentWord.hanja !== "고유어" ? `(${currentWord.hanja})` : "";
+    
+    // 이전에 Back에 떴던 내용 초기화
+    elements.wordBackMeaningBasic.textContent = currentWord.meaning;
+    elements.wordBackMeaningDetailed.textContent = "";
+    elements.wordBackHanjaBreakdown.textContent = "";
     elements.hanjaBreakdownArea.classList.add('hidden');
+  }, 150);
+
+  // AI 통신
+  isLoading = true;
+  await fetchWordFromAI(currentWord);
+}
+
+// AI로부터 예문 3개와 해설 받아오기
+async function fetchWordFromAI(wordObj) {
+  try {
+    const response = await fetch(WORKER_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        word: wordObj.word,
+        meaning: wordObj.meaning,
+        pos: wordObj.pos,
+        hanja: wordObj.hanja
+      })
+    });
+
+    if (!response.ok) throw new Error(`Worker Error: ${response.status}`);
+    const aiResult = await response.json();
+    currentAiData = aiResult; // { examples: [], detailedMeaning: "", hanjaBreakdown: "" }
+
+    renderAILoadedSuccess();
+  } catch (error) {
+    console.error("AI 요청 실패:", error);
+    // 모의 데이터로 폴백(Fallback) 방어
+    currentAiData = {
+      examples: [
+        "AI 응답 지연으로 예문을 불러올 수 없습니다.",
+        "오프라인 상태이거나 서버 오류일 수 있습니다."
+      ],
+      detailedMeaning: "통신 오류: " + error.message,
+      hanjaBreakdown: "오류"
+    };
+    renderAILoadedSuccess();
   }
 }
 
-function renderFrontFallback() {
-  elements.wordFrontExamples.innerHTML = "<p class='text-red-500'>AI 예문을 불러오지 못했습니다. 뜻을 확인해보세요.</p>";
-  elements.wordFrontExamples.classList.remove('hidden');
-  elements.wordBackMeaning.textContent = currentWord.meaning;
-  elements.wordBackNuance.textContent = "통신 오류로 인해 자세한 해설을 불러오지 못했습니다.";
+function renderAILoadedSuccess() {
+  if (isFlipped) return; // 이미 뒤집혔다면 렌더링 무시
+  isLoading = false;
+  
+  // 로딩 숨기고 예문 표시
+  elements.loadingIndicator.classList.add('hidden');
+  elements.loadingIndicator.classList.remove('flex');
+  
+  elements.frontExamplesList.innerHTML = "";
+  if (currentAiData.examples && currentAiData.examples.length > 0) {
+    currentAiData.examples.forEach(ex => {
+      const li = document.createElement('li');
+      li.innerHTML = ex; // <strong> 태그 렌더링 허용
+      elements.frontExamplesList.appendChild(li);
+    });
+  }
+  elements.frontExamplesArea.classList.remove('hidden');
+  elements.frontExamplesArea.classList.add('flex');
+  
+  // '확인하기' 버튼 보이기
+  elements.btnReveal.classList.remove('hidden');
+  elements.btnReveal.disabled = false;
 }
 
+// 정답 확인 버튼 눌렀을 때
 function flipCard() {
   if (isLoading || isFlipped) return;
   isFlipped = true;
-  elements.cardContainer.classList.add('card-flipped');
   
-  setTimeout(() => {
-    elements.btnSubmit.classList.add('hidden');
-    elements.btnContainerActions.classList.remove('hidden');
-  }, 150);
-}
-
-function updateStatusAndNext(newStatus) {
-  const index = sessionWords.findIndex(w => w.id === currentWord.id);
-  if (index !== -1) {
-    sessionWords[index].status = newStatus;
-    saveStateToStorage();
+  // 뒷면 채우기
+  elements.wordBackMeaningDetailed.textContent = currentAiData.detailedMeaning || "-";
+  if (currentAiData.hanjaBreakdown && currentAiData.hanjaBreakdown.trim() !== "") {
+    elements.wordBackHanjaBreakdown.textContent = currentAiData.hanjaBreakdown;
+    elements.hanjaBreakdownArea.classList.remove('hidden');
   }
+
+  // 카드 뒤집기 애니메이션 실행
+  elements.cardContainer.classList.add('card-flipped');
+
+  // 버튼 교체
+  elements.btnReveal.classList.add('hidden');
+  elements.btnContainerActions.classList.remove('hidden');
+}
+
+// Anki 등급 제출 처리
+function submitGrade(grade) {
+  if (!currentWord) return;
+
+  const wordId = currentWord.id;
+  if (!userProgress[wordId]) {
+    userProgress[wordId] = { status: 'pending', errCount: 0, nextReview: 0 };
+  }
+
+  const record = userProgress[wordId];
+  const now = Date.now();
+  let delay = 0;
+
+  if (grade === 'wrong') {
+    record.status = 'wrong';
+    record.errCount += 1;
+    delay = 1000 * 60; // 1분 뒤 복습
+  } else if (grade === 'learning') {
+    record.status = 'learning';
+    delay = 1000 * 60 * 60 * 12; // 12시간 뒤 복습 (실제로는 확률적으로 나올 수 있도록 함)
+  } else if (grade === 'mastered') {
+    record.status = 'mastered';
+    delay = 1000 * 60 * 60 * 24 * 3; // 3일 뒤 복습
+  }
+
+  record.nextReview = now + delay;
+  saveProgress();
   
-  elements.btnContainerActions.classList.add('hidden');
-  elements.btnContainerNext.classList.remove('hidden');
+  // 다음 단어로 빠르게 넘어가기
+  setTimeout(() => {
+    loadNextWord();
+  }, 100);
 }
 
-function setupEventListeners() {
-  elements.btnSubmit.onclick = flipCard;
-  elements.btnNext.onclick = loadNextWord;
-
-  elements.btnMarkWrong.onclick = () => updateStatusAndNext('wrong');
-  elements.btnMarkLearning.onclick = () => updateStatusAndNext('learning');
-  elements.btnMarkMastered.onclick = () => updateStatusAndNext('mastered');
-
-  // Spacebar triggers flip or next
-  document.addEventListener('keydown', (e) => {
-    if (e.code === 'Space') {
-      if (!isFlipped && !isLoading) flipCard();
-      else if (isFlipped && !elements.btnContainerNext.classList.contains('hidden')) loadNextWord();
-    }
-  });
-}
-
-init();
+// 앱 실행
+document.addEventListener('DOMContentLoaded', initApp);

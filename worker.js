@@ -33,10 +33,10 @@ export default {
 
     try {
       const body = await request.json();
-      const { word, meaning, hanja, pos } = body;
+      const { word, meaning, pos, hanja } = body;
 
       if (!word) {
-        return new Response(JSON.stringify({ error: 'Missing word in request body' }), {
+        return new Response(JSON.stringify({ error: 'Missing word' }), {
           status: 400,
           headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         });
@@ -50,27 +50,32 @@ export default {
         });
       }
 
-      // Anki 스타일 1회 호출용 프롬프트
+      // 3. Prompt 설계 (Anki 스타일: 채점 생략, 3개의 예문 및 상세 해설 생성)
       const promptText = `
-당신은 최고 수준의 국어 교육 AI입니다. 다음 단어 정보를 바탕으로 학습자가 단어의 뜻을 유추하고 깊이 있게 이해할 수 있는 학습 자료를 생성하세요.
-
+너는 고등학생의 수능 국어/고급 어휘 학습을 도와주는 최고의 국어 선생님이야.
+학생이 학습할 단어 정보는 다음과 같아:
 단어: "${word}"
-품사: "${pos || '알수없음'}"
-사전적 의미: "${meaning || '의미 파악 불가'}"
-한자 정보: "${hanja || ''}"
+품사: "${pos || '알 수 없음'}"
+기본 뜻: "${meaning || '알 수 없음'}"
+한자: "${hanja || '고유어 혹은 알 수 없음'}"
 
-규칙:
-1. "examples": 학습자가 뜻을 유추할 수 있도록 돕는 실용적이고 자연스러운 예문 3개를 배열로 제공하세요. 예문 내 "${word}"(및 활용형)은 <strong> 태그로 강조하세요.
-2. "nuance": 해당 단어의 속뜻, 뉘앙스, 혹은 비슷한 단어와의 차이점을 1~2문장으로 친절하게 설명하세요.
-3. "hanjaBreakdown": 단어가 한자어일 경우 각 한자의 음과 뜻을 분리(예: 破 깨뜨릴 파)하여 설명하고, 이 한자들이 모여 왜 현재의 뜻이 되었는지 어원을 서술하세요. 고유어라면 빈 문자열을 반환하세요.
+이 정보를 바탕으로 학생이 단어를 완벽히 이해할 수 있도록 다음 3가지 정보를 반드시 JSON 형식으로만 반환해줘. 다른 말은 절대 추가하지 마.
 
-응답은 반드시 아래 JSON 형식으로만 출력하세요 (텍스트 설명 제외):
+1. "examples": 이 단어가 아주 자연스럽게 사용된 실생활/수능 수준의 예문 3개. (각 예문 안에서 해당 단어 부분은 반드시 HTML <strong> 태그로 감싸야 해!)
+2. "detailedMeaning": 이 단어의 숨겨진 뉘앙스나 언제 주로 쓰이는지 부드럽고 친절하게 설명해줘.
+3. "hanjaBreakdown": 단어가 한자어라면 각 한자의 뜻과 음을 쪼개서 설명하고, 왜 그런 뜻이 되었는지 어원을 설명해줘. 순우리말(고유어)이라면 어원이나 외우기 쉬운 연상법(Mnemonic)을 알려줘.
+
+JSON 응답 예시:
 {
-  "examples": ["첫 번째 예문", "두 번째 예문", "세 번째 예문"],
-  "nuance": "뉘앙스 설명",
-  "hanjaBreakdown": "한자 뜻풀이"
+  "examples": [
+    "그는 파죽지세로 밀고 나갔다.",
+    "적들은 <strong>파죽지세</strong>에 겁을 먹었다.",
+    "우리의 <strong>파죽지세</strong> 같은 기세"
+  ],
+  "detailedMeaning": "정확한 뉘앙스와 쓰임새 설명",
+  "hanjaBreakdown": "한자 분해 또는 연상법"
 }
-`.trim();
+      `.trim();
 
       const geminiEndpoint = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key=${apiKey}`;
       
@@ -88,6 +93,7 @@ export default {
 
       const data = await geminiResponse.json();
       const textOutput = data.candidates[0].content.parts[0].text;
+      
       const cleanJsonStr = textOutput.replace(/```json/g, '').replace(/```/g, '').trim();
       const resultObj = JSON.parse(cleanJsonStr);
 
